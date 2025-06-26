@@ -34,6 +34,7 @@ test-results/
 # Claude-specific
 .claude/
 .gudang/
+CLAUDE.md
 
 # Locale compilation artifacts
 /usr/lib/locale/*
