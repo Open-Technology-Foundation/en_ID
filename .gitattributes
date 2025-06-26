@@ -1,0 +1,20 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Locale files
+*.locale text
+en_ID text
+localedata/* text
+
+# Documentation
+*.md text
+LICENSE text
+CONTRIBUTING text
+
+# Scripts
+*.sh text eol=lf
+Makefile text
+
+# Archive files
+*.tar.gz binary
+*.zip binary
