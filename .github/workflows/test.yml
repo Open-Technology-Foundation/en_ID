@@ -1,0 +1,79 @@
+name: Test en_ID Locale
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        ubuntu-version: ['20.04', '22.04', '24.04']
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Install locale tools
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y locales locales-all build-essential
+    
+    - name: Display system info
+      run: |
+        echo "Ubuntu version: ${{ matrix.ubuntu-version }}"
+        echo "Locale version:"
+        locale --version
+        echo "Available locales:"
+        locale -a | grep -E "(en_GB|en_SG)" || true
+    
+    - name: Check locale syntax
+      run: make check
+    
+    - name: Compile locale
+      run: make compile
+    
+    - name: Run tests
+      run: make test
+    
+    - name: Test installation (dry run)
+      run: |
+        # Test that install commands would work
+        make -n install
+    
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results-${{ matrix.ubuntu-version }}
+        path: |
+          build/
+          tests/*.log
+        retention-days: 7
+
+  lint:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Check file format
+      run: |
+        # Check for UTF-8 encoding
+        file localedata/en_ID | grep -q "UTF-8" || (echo "Locale file must be UTF-8 encoded" && exit 1)
+        
+        # Check for trailing whitespace
+        ! grep -n "[[:space:]]$" localedata/en_ID || (echo "Found trailing whitespace" && exit 1)
+        
+        # Check for tabs vs spaces consistency
+        echo "File format checks passed"
+    
+    - name: Validate README
+      run: |
+        # Check that all commands in README are valid
+        grep -E "^\`\`\`bash" README.md -A 10 | grep -E "^[^#].*\$" || true

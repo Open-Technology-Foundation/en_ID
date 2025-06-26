@@ -1,0 +1,40 @@
+# Build artifacts
+build/
+*.mo
+*.po~
+
+# Temporary files
+*~
+*.swp
+*.swo
+*.tmp
+.~*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor directories
+.vscode/
+.idea/
+*.sublime-*
+
+# Local configuration
+.env
+.env.local
+
+# Test outputs
+*.log
+test-results/
+
+# Backup files
+*.bak
+*.backup
+
+# Claude-specific
+.claude/
+.gudang/
+
+# Locale compilation artifacts
+/usr/lib/locale/*
+/usr/share/locale/*
