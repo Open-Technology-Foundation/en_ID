@@ -217,7 +217,7 @@ This locale definition is released under the GNU General Public License v3.0. Se
 
 Created and maintained by [Yayasan Teknologi Terbuka Indonesia](https://yatti.id) (Open Technology Foundation).
 
-Contact: info@yatti.id
+Contact: admin@yatti.id
 
 ## See Also
 
