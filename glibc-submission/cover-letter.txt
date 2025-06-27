@@ -1,10 +1,12 @@
-Subject: [PATCH v2] Add en_ID locale for Indonesian English
+Subject: [PATCH v2] localedata: Add en_ID locale for Indonesian English
 
 Hello,
 
 This is an updated submission of the en_ID locale, originally proposed in 2015
-(Bug #19010). The locale has been updated to current glibc standards and has
-been tested extensively.
+(Bug #19010). This version addresses the feedback from Carlos O'Donell:
+- Added the required GNU C Library copyright disclaimer
+- Converted all Unicode code points to their associated characters
+- Updated to current glibc standards
 
 Changes since v1 (2015):
 - Updated to current glibc locale format standards
@@ -29,6 +31,8 @@ The locale definition and test suite are available at:
 https://github.com/Open-Technology-Foundation/en_ID
 
 I'm happy to make any adjustments needed for inclusion.
+
+[BZ #19010]
 
 Best regards,
 Gary Dean
