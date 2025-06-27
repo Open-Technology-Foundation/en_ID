@@ -9,6 +9,8 @@ build/
 *.swo
 *.tmp
 .~*
+temp/
+tmp/
 
 # OS files
 .DS_Store
@@ -39,3 +41,4 @@ CLAUDE.md
 # Locale compilation artifacts
 /usr/lib/locale/*
 /usr/share/locale/*
+
