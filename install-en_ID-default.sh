@@ -21,19 +21,23 @@ echo -e "${GREEN}Installing en_ID locale as system default...${NC}"
 
 # Update package lists
 echo "Updating package lists..."
-# Temporarily disable the command-not-found hook if it's broken
-declare -r CNF_HOOK="/etc/apt/apt.conf.d/50command-not-found"
-declare CNF_DISABLED=false
-if [[ -f "$CNF_HOOK" ]] && grep -q "cnf-update-db" "$CNF_HOOK" 2>/dev/null; then
-  mv "$CNF_HOOK" "${CNF_HOOK}.disabled" 2>/dev/null && CNF_DISABLED=true
-fi
+# Find and temporarily disable command-not-found hook if it exists
+declare CNF_HOOK=""
+for conf in /etc/apt/apt.conf.d/*; do
+  if grep -q "cnf-update-db" "$conf" 2>/dev/null; then
+    CNF_HOOK="$conf"
+    break
+  fi
+done
 
-# Now run update
-apt-get update -qq
-
-# Restore the hook if we disabled it
-if [[ "$CNF_DISABLED" == "true" ]]; then
+# If we found the problematic hook, disable it temporarily
+if [[ -n "$CNF_HOOK" ]]; then
+  mv "$CNF_HOOK" "${CNF_HOOK}.disabled" 2>/dev/null || true
+  apt-get update -qq
   mv "${CNF_HOOK}.disabled" "$CNF_HOOK" 2>/dev/null || true
+else
+  # No problematic hook found, run normally
+  apt-get update -qq
 fi
 
 # Install required packages
