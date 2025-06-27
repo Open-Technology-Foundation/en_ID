@@ -19,7 +19,7 @@ check:
 compile:
 	@echo "Compiling locale..."
 	@mkdir -p build
-	@localedef --verbose --charmap=$(CHARMAP) --inputfile=$(LOCALE_FILE) --outputdir=build $(LOCALE_NAME).$(CHARMAP)
+	@localedef -f $(CHARMAP) -i $(LOCALE_FILE) ./build/$(LOCALE_NAME).$(CHARMAP)
 
 # Install locale system-wide
 install: check
