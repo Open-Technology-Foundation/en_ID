@@ -35,19 +35,32 @@ Rather than force Indonesian names into an incompatible structure, LC_NAME is le
 
 ### Quick Install (Automated)
 
+#### Ubuntu/Debian
 To install en_ID as the default system locale with a single command:
 
 ```bash
 wget -O- https://raw.githubusercontent.com/Open-Technology-Foundation/en_ID/main/install-en_ID-default.sh | sudo bash
 ```
 
-This script will:
+#### Fedora/RHEL/CentOS
+```bash
+wget -O- https://raw.githubusercontent.com/Open-Technology-Foundation/en_ID/main/install-fedora.sh | sudo bash
+```
+
+#### Arch Linux
+```bash
+wget -O- https://raw.githubusercontent.com/Open-Technology-Foundation/en_ID/main/install-arch.sh | sudo bash
+```
+
+These scripts will:
 - Install the en_ID locale
-- Set it as the system default
+- Optionally set it as system default
 - Backup existing locale settings
 - Configure the system for Indonesian English
 
 ### Manual Installation
+
+#### Ubuntu/Debian
 
 1. Clone this repository:
 ```bash
@@ -64,6 +77,35 @@ sudo make install
 ```bash
 locale -a | grep en_ID
 # Should show: en_ID.utf8
+```
+
+#### Fedora/RHEL/CentOS
+
+```bash
+# Copy locale file
+sudo cp localedata/en_ID /usr/share/i18n/locales/
+
+# Generate locale
+sudo localedef -i en_ID -f UTF-8 en_ID.UTF-8
+
+# Set as default (optional)
+sudo localectl set-locale LANG=en_ID.UTF-8
+```
+
+#### Arch Linux
+
+```bash
+# Copy locale file
+sudo cp localedata/en_ID /usr/share/i18n/locales/
+
+# Add to locale.gen
+echo "en_ID.UTF-8 UTF-8" | sudo tee -a /etc/locale.gen
+
+# Generate locale
+sudo locale-gen
+
+# Set as default (optional)
+echo "LANG=en_ID.UTF-8" | sudo tee /etc/locale.conf
 ```
 
 Note: The system may show the locale as `en_ID.utf8` rather than `en_ID.UTF-8`. Both refer to the same locale.
