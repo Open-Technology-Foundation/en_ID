@@ -21,8 +21,20 @@ echo -e "${GREEN}Installing en_ID locale as system default...${NC}"
 
 # Update package lists
 echo "Updating package lists..."
-# Suppress command-not-found errors if the package is broken
-apt-get update -qq 2>&1 | grep -v "ModuleNotFoundError: No module named 'apt_pkg'" || true
+# Temporarily disable the command-not-found hook if it's broken
+declare -r CNF_HOOK="/etc/apt/apt.conf.d/50command-not-found"
+declare CNF_DISABLED=false
+if [[ -f "$CNF_HOOK" ]] && grep -q "cnf-update-db" "$CNF_HOOK" 2>/dev/null; then
+  mv "$CNF_HOOK" "${CNF_HOOK}.disabled" 2>/dev/null && CNF_DISABLED=true
+fi
+
+# Now run update
+apt-get update -qq
+
+# Restore the hook if we disabled it
+if [[ "$CNF_DISABLED" == "true" ]]; then
+  mv "${CNF_HOOK}.disabled" "$CNF_HOOK" 2>/dev/null || true
+fi
 
 # Install required packages
 echo "Installing required packages..."
