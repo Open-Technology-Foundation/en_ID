@@ -1,5 +1,3 @@
-glibc-submission/
-
 # Build artifacts
 build/
 *.mo

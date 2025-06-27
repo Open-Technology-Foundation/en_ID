@@ -1,0 +1,137 @@
+comment_char  %
+escape_char   /
+%
+% This file is part of the GNU C Library and contains locale data.
+% The Free Software Foundation does not claim any copyright interest
+% in the locale data contained in this file.  The foregoing does not
+% affect the license of the GNU C Library as a whole.  It does not
+% exempt you from the conditions of the license if your use would
+% otherwise be governed by that license.
+%
+% English language locale for Indonesia.
+%
+
+LC_IDENTIFICATION
+title      "English language locale for Indonesia"
+source     "Yayasan Teknologi Terbuka Indonesia"
+address    "yatti.id"
+contact    "Gary Dean"
+email      "admin@yatti.id"
+tel         "+62213901007"
+fax         ""
+language    "English"
+territory   "Indonesia"
+revision    "2.0"
+date        "2024-06-27"
+%
+category "i18n:2012";LC_IDENTIFICATION
+category "i18n:2012";LC_CTYPE
+category "i18n:2012";LC_COLLATE
+category "i18n:2012";LC_TIME
+category "i18n:2012";LC_NUMERIC
+category "i18n:2012";LC_MONETARY
+category "i18n:2012";LC_MESSAGES
+category "i18n:2012";LC_PAPER
+category "i18n:2012";LC_NAME
+category "i18n:2012";LC_ADDRESS
+category "i18n:2012";LC_TELEPHONE
+category "i18n:2012";LC_MEASUREMENT
+END LC_IDENTIFICATION
+
+LC_CTYPE
+copy "en_GB"
+END LC_CTYPE
+
+LC_COLLATE
+% Copy the template from ISO/IEC 14651
+copy "iso14651_t1"
+END LC_COLLATE
+
+LC_MONETARY
+int_curr_symbol       "IDR "
+currency_symbol       "Rp"
+mon_decimal_point     "."
+mon_thousands_sep     ","
+mon_grouping          3
+positive_sign         ""
+negative_sign         "-"
+int_frac_digits       2
+frac_digits           2
+p_cs_precedes         1
+p_sep_by_space        0
+n_cs_precedes         1
+n_sep_by_space        0
+p_sign_posn           1
+n_sign_posn           0
+%
+END LC_MONETARY
+
+LC_NUMERIC
+decimal_point          "."
+thousands_sep          ","
+grouping               3
+%
+END LC_NUMERIC
+
+LC_TIME
+% Abbreviated weekday names (%a)
+abday       "Sun";"Mon";"Tue";"Wed";"Thu";"Fri";"Sat"
+%
+% Full weekday names (%A)
+day         "Sunday";"Monday";"Tuesday";"Wednesday";"Thursday";"Friday";"Saturday"
+%
+% Abbreviated month names (%b)
+abmon       "Jan";"Feb";"Mar";"Apr";"May";"Jun";"Jul";"Aug";"Sep";"Oct";"Nov";"Dec"
+%
+% Full month names (%B)
+mon         "January";"February";"March";"April";"May";"June";"July";"August";"September";"October";"November";"December"
+%
+% Equivalent of AM PM
+am_pm       "";""
+% Appropriate 12 h time representation (%r)
+% Not used - 24 hour format is standard
+t_fmt_ampm  "%H:%M:%S"
+%
+% Appropriate date and time representation
+% %a %d %b %Y %T
+d_t_fmt     "%a %d %b %Y %T"
+%
+% Appropriate date representation
+% %Y-%m-%d
+d_fmt       "%Y-%m-%d"
+%
+% Appropriate time representation
+% %T
+t_fmt       "%T"
+%
+%  FIXME: found in CLDR
+first_weekday 2
+END LC_TIME
+
+LC_MESSAGES
+copy "en_SG"
+END LC_MESSAGES
+
+LC_PAPER
+height      297
+width       210
+END LC_PAPER
+
+LC_NAME
+name_fmt    "%d%t%g%t%m%t%f"
+END LC_NAME
+
+LC_ADDRESS
+postal_fmt  "%z%c%T%s%b%e%r"
+country_ab2   "ID"
+country_ab3   "IDN"
+country_num   360
+END LC_ADDRESS
+
+LC_TELEPHONE
+tel_int_fmt "+%c ;%a ;%l"
+END LC_TELEPHONE
+
+LC_MEASUREMENT
+measurement 1
+END LC_MEASUREMENT
