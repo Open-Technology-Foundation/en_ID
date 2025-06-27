@@ -4,7 +4,7 @@ set -uo pipefail
 # Test script for en_ID locale
 # Usage: ./test_en_ID.sh [category]
 
-declare -r LOCALE="en_ID.UTF-8"
+declare -r LOCALE="en_ID.utf8"
 declare -r BUILD_DIR="$(dirname "$0")/../build"
 declare -i TESTS_PASSED=0
 declare -i TESTS_FAILED=0
@@ -23,9 +23,13 @@ run_test() {
   
   echo -n "Testing $description... "
   
-  # Set locale path to our build directory
+  # Set locale path to our build directory or use system locale
   local actual
-  actual=$(LOCPATH="$BUILD_DIR" LC_ALL="$LOCALE" $command 2>/dev/null || echo "")
+  if [[ "${USE_SYSTEM_LOCALE:-false}" == "true" ]]; then
+    actual=$(LC_ALL="$LOCALE" eval "$command" 2>/dev/null || echo "")
+  else
+    actual=$(LOCPATH="$BUILD_DIR" LC_ALL="$LOCALE" eval "$command" 2>/dev/null || echo "")
+  fi
   
   if [[ "$actual" == "$expected" ]]; then
     echo -e "${GREEN}PASSED${NC}"
@@ -64,17 +68,30 @@ test_numeric() {
   # Test thousands separator
   run_test "thousands_sep" "locale thousands_sep" ","
   
-  # Test number formatting - note: may show warnings in build environment
-  echo "  Note: Number formatting may show warnings without system locale"
+  # Test number formatting
+  run_test "number format" "printf %\'d 1234567" "1,234,567"
 }
 
 test_time() {
   echo -e "\n${YELLOW}Testing LC_TIME${NC}"
   
-  # Note: date command tests require system locale installation
-  # These tests verify the locale file has correct data
-  echo "  Note: Time format tests require system locale installation"
-  echo "  Skipping date/time formatting tests in build environment"
+  # Test date format
+  run_test "date format" "date -d '2024-01-15' +%x" "2024-01-15"
+  
+  # Test time format (24-hour)
+  run_test "time format" "date -d '2024-01-15 14:30:45' +%X" "14:30:45"
+  
+  # Test day/month names through date command
+  run_test "abbreviated Sunday" "date -d '2024-01-07' +%a" "Sun"
+  run_test "abbreviated Monday" "date -d '2024-01-08' +%a" "Mon"
+  
+  # Test full day names
+  run_test "full Sunday" "date -d '2024-01-07' +%A" "Sunday"
+  run_test "full Monday" "date -d '2024-01-08' +%A" "Monday"
+  
+  # Test month names
+  run_test "abbreviated January" "date -d '2024-01-15' +%b" "Jan"
+  run_test "full January" "date -d '2024-01-15' +%B" "January"
 }
 
 test_messages() {
@@ -124,10 +141,16 @@ main() {
   echo "Testing en_ID locale"
   echo "======================================"
   
-  # Check if locale is available in build directory
-  if [[ ! -d "$BUILD_DIR/$LOCALE" ]]; then
-    echo -e "${RED}Error: Locale not found in build directory${NC}"
-    echo "Please run 'make compile' first"
+  # Check if locale is available (either system or build)
+  if locale -a 2>/dev/null | grep -q "en_ID"; then
+    echo "Using system locale en_ID.UTF-8"
+    USE_SYSTEM_LOCALE=true
+  elif [[ -d "$BUILD_DIR/$LOCALE" ]]; then
+    echo "Using build directory locale"
+    USE_SYSTEM_LOCALE=false
+  else
+    echo -e "${RED}Error: Locale not found${NC}"
+    echo "Please run 'make compile' or 'make install' first"
     exit 1
   fi
   
