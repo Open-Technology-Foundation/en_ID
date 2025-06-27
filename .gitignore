@@ -1,3 +1,9 @@
+# glibc submission files (keep local only)
+glibc-submission/
+
+# Social media drafts
+social-media-announcements.md
+
 # Build artifacts
 build/
 *.mo
