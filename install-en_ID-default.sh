@@ -21,7 +21,8 @@ echo -e "${GREEN}Installing en_ID locale as system default...${NC}"
 
 # Update package lists
 echo "Updating package lists..."
-apt-get update -qq
+# Suppress command-not-found errors if the package is broken
+apt-get update -qq 2>&1 | grep -v "ModuleNotFoundError: No module named 'apt_pkg'" || true
 
 # Install required packages
 echo "Installing required packages..."
