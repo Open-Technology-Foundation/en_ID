@@ -33,7 +33,21 @@ Rather than force Indonesian names into an incompatible structure, LC_NAME is le
 
 ## Installation
 
-### From Source
+### Quick Install (Automated)
+
+To install en_ID as the default system locale with a single command:
+
+```bash
+wget -O- https://raw.githubusercontent.com/Open-Technology-Foundation/en_ID/main/install-en_ID-default.sh | sudo bash
+```
+
+This script will:
+- Install the en_ID locale
+- Set it as the system default
+- Backup existing locale settings
+- Configure the system for Indonesian English
+
+### Manual Installation
 
 1. Clone this repository:
 ```bash
