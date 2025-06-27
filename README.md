@@ -61,19 +61,19 @@ Note: The system may show the locale as `en_ID.utf8` rather than `en_ID.UTF-8`. 
 locale -a | grep en_ID
 
 # Test locale settings (use either format)
-LANG=en_ID.UTF-8 locale
+LC_ALL=en_ID.UTF-8 locale
 # or
-LANG=en_ID.utf8 locale
+LC_ALL=en_ID.utf8 locale
 
 # Quick test - should show date in YYYY-MM-DD format
-LANG=en_ID.utf8 date +%x
+LC_ALL=en_ID.utf8 date +%x
 ```
 
 ## Usage
 
 ### System-wide
 ```bash
-sudo update-locale LANG=en_ID.UTF-8
+sudo update-locale LANG=en_ID.UTF-8 LC_ALL=en_ID.UTF-8
 ```
 
 ### Per-session
@@ -82,24 +82,26 @@ export LANG=en_ID.UTF-8
 export LC_ALL=en_ID.UTF-8
 ```
 
+Note: Using `LC_ALL` ensures all locale categories use en_ID. Using only `LANG` may result in some categories falling back to system defaults.
+
 ### Application-specific
 ```bash
-LANG=en_ID.UTF-8 your-application
+LC_ALL=en_ID.UTF-8 your-application
 ```
 
 ## Examples
 
 ```bash
 # Date format
-$ LANG=en_ID.UTF-8 date +%x
+$ LC_ALL=en_ID.UTF-8 date +%x
 2024-01-15
 
 # Currency format
-$ LANG=en_ID.UTF-8 printf "%'.2f\n" 1234567.89
-Rp1,234,567.89
+$ LC_MONETARY=en_ID.UTF-8 printf "%'.2f\n" 1234567.89
+1,234,567.89
 
 # Time format (24-hour)
-$ LANG=en_ID.UTF-8 date +%X
+$ LC_TIME=en_ID.UTF-8 date +%X
 14:30:45
 ```
 
