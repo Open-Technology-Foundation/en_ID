@@ -46,15 +46,13 @@ cd en_ID
 sudo make install
 ```
 
-3. Generate the locale:
+3. Verify installation:
 ```bash
-sudo locale-gen en_ID.UTF-8
+locale -a | grep en_ID
+# Should show: en_ID.utf8
 ```
 
-4. Update locale database:
-```bash
-sudo update-locale
-```
+Note: The system may show the locale as `en_ID.utf8` rather than `en_ID.UTF-8`. Both refer to the same locale.
 
 ### Testing Installation
 
@@ -62,8 +60,13 @@ sudo update-locale
 # Test if locale is available
 locale -a | grep en_ID
 
-# Test locale settings
+# Test locale settings (use either format)
 LANG=en_ID.UTF-8 locale
+# or
+LANG=en_ID.utf8 locale
+
+# Quick test - should show date in YYYY-MM-DD format
+LANG=en_ID.utf8 date +%x
 ```
 
 ## Usage
