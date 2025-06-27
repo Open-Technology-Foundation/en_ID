@@ -47,7 +47,7 @@ Install en_ID as your default locale with one command:
 
 ### Ubuntu/Debian
 ```bash
-wget -O- https://raw.githubusercontent.com/Open-Technology-Foundation/en_ID/main/install-en_ID-default.sh | sudo bash
+wget -O- https://raw.githubusercontent.com/Open-Technology-Foundation/en_ID/main/install-ubuntu.sh | sudo bash
 ```
 
 ### Fedora/RHEL/CentOS
