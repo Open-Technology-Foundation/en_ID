@@ -123,7 +123,7 @@ This locale definition is released under the GNU General Public License v3.0. Se
 
 ## Author
 
-Created and maintained by Yayasan Teknologi Terbuka Indonesia.
+Created and maintained by [Yayasan Teknologi Terbuka Indonesia](https://yatti.id) (Open Technology Foundation).
 
 ## See Also
 
