@@ -194,13 +194,25 @@ The LC_NAME category is intentionally left minimal. Indonesian naming convention
 
 Rather than misrepresent Indonesian names, LC_NAME uses a minimal definition.
 
-### Date and Number Formats
+### Indonesian Standards Adopted
 
-This locale uses international business formats rather than traditional Indonesian formats:
+The en_ID locale adopts these standards from Indonesia:
+
+- **Currency**: Indonesian Rupiah (IDR/Rp) with standard positioning
+- **Country Codes**: ID (alpha-2), IDN (alpha-3), 360 (numeric)
+- **Telephone**: International format with +62 country code
+- **Paper Size**: A4 (297×210mm)
+- **Measurement**: Metric system
+- **Week Start**: Monday
+
+### International Standards Used
+
+Rather than traditional Indonesian formats, en_ID uses:
 - **Dates**: ISO 8601 (YYYY-MM-DD) instead of Indonesian DD/MM/YYYY
 - **Numbers**: Anglo format (1,234.56) instead of Indonesian (1.234,56)
+- **Language**: English (inherited from en_GB and en_SG)
 
-This design choice prioritizes international compatibility for English-language business and technical contexts.
+This design prioritizes international compatibility for English-language business and technical contexts.
 
 ### British vs American English
 
