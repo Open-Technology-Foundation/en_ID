@@ -2,87 +2,102 @@
 
 A locale definition for English language users in Indonesia, combining international English standards with Indonesian regional conventions.
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Features](#features)
+- [Quick Start](#quick-start)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Testing](#testing)
+- [Design Decisions](#design-decisions)
+- [Contributing](#contributing)
+- [License](#license)
+
 ## Overview
 
-The `en_ID` locale provides English language support tailored for use in Indonesia. It's designed as a hybrid locale that:
-- Uses British English spelling conventions (inherited from `en_GB`)
-- Adopts Indonesian monetary, numeric, and date/time formats
-- Follows Indonesian business conventions
+The `en_ID` locale provides English language support tailored for Indonesia. It combines:
+- **British English** spelling conventions (inherited from `en_GB`)
+- **Indonesian** regional formats (currency, dates, numbers)
+- **International** business standards (ISO dates, 24-hour time)
+
+### Who needs this?
+
+- International businesses operating in Indonesia
+- Indonesian professionals working in English
+- Software systems requiring English UI with Indonesian regional settings
+- Educational institutions using English as medium of instruction
 
 ## Features
 
-- **Language**: English (British spelling)
-- **Currency**: Indonesian Rupiah (IDR/Rp)
-- **Number Format**: Decimal point (.), comma thousand separator (,)
-- **Date Format**: ISO 8601 (YYYY-MM-DD)
-- **Time Format**: 24-hour
-- **First Weekday**: Monday
-- **Paper Size**: A4 (297×210mm)
-- **Measurement**: Metric
+| Category | Setting | Example |
+|----------|---------|---------|
+| **Language** | English (British spelling) | colour, centre |
+| **Currency** | Indonesian Rupiah | Rp 1,234,567.89 |
+| **Numbers** | Decimal point, comma separator | 1,234,567.89 |
+| **Date** | ISO 8601 format | 2024-01-15 |
+| **Time** | 24-hour format | 14:30:45 |
+| **First Day** | Monday | - |
+| **Paper** | A4 (297×210mm) | - |
+| **Measurement** | Metric | - |
 
-### Note on LC_NAME
+## Quick Start
 
-The LC_NAME category has been intentionally omitted from this locale. Indonesian naming conventions are highly diverse and don't map well to the Western-centric name formatting system:
+Install en_ID as your default locale with one command:
 
-- Single names are common (e.g., Sukarno, Suharto, Junarti)
-- Names may be of Javanese, Balinese, Chinese, Arabic, or other origins
-- Traditional titles (Pak/Bu) are Indonesian language, not English
-- In English contexts, Indonesians typically use Mr./Ms. anyway
-
-Rather than force Indonesian names into an incompatible structure, LC_NAME is left undefined.
-
-## Installation
-
-### Quick Install (Automated)
-
-#### Ubuntu/Debian
-To install en_ID as the default system locale with a single command:
-
+### Ubuntu/Debian
 ```bash
 wget -O- https://raw.githubusercontent.com/Open-Technology-Foundation/en_ID/main/install-en_ID-default.sh | sudo bash
 ```
 
-#### Fedora/RHEL/CentOS
+### Fedora/RHEL/CentOS
 ```bash
 wget -O- https://raw.githubusercontent.com/Open-Technology-Foundation/en_ID/main/install-fedora.sh | sudo bash
 ```
 
-#### Arch Linux
+### Arch Linux
 ```bash
 wget -O- https://raw.githubusercontent.com/Open-Technology-Foundation/en_ID/main/install-arch.sh | sudo bash
 ```
 
-These scripts will:
-- Install the en_ID locale
-- Optionally set it as system default
-- Backup existing locale settings
-- Configure the system for Indonesian English
+## Installation
+
+### Automated Installation
+
+The quick start commands above will:
+- ✓ Install the en_ID locale files
+- ✓ Generate the locale
+- ✓ Optionally set as system default
+- ✓ Backup existing locale settings
+- ✓ Test the installation
 
 ### Manual Installation
 
-#### Ubuntu/Debian
+<details>
+<summary>Ubuntu/Debian</summary>
 
-1. Clone this repository:
 ```bash
+# Clone repository
 git clone https://github.com/Open-Technology-Foundation/en_ID.git
 cd en_ID
-```
 
-2. Build and install the locale:
-```bash
+# Install
 sudo make install
-```
 
-3. Verify installation:
-```bash
+# Verify
 locale -a | grep en_ID
-# Should show: en_ID.utf8
 ```
+</details>
 
-#### Fedora/RHEL/CentOS
+<details>
+<summary>Fedora/RHEL/CentOS</summary>
 
 ```bash
-# Copy locale file
+# Clone repository
+git clone https://github.com/Open-Technology-Foundation/en_ID.git
+cd en_ID
+
+# Install locale file
 sudo cp localedata/en_ID /usr/share/i18n/locales/
 
 # Generate locale
@@ -91,11 +106,17 @@ sudo localedef -i en_ID -f UTF-8 en_ID.UTF-8
 # Set as default (optional)
 sudo localectl set-locale LANG=en_ID.UTF-8
 ```
+</details>
 
-#### Arch Linux
+<details>
+<summary>Arch Linux</summary>
 
 ```bash
-# Copy locale file
+# Clone repository
+git clone https://github.com/Open-Technology-Foundation/en_ID.git
+cd en_ID
+
+# Install locale file
 sudo cp localedata/en_ID /usr/share/i18n/locales/
 
 # Add to locale.gen
@@ -107,71 +128,86 @@ sudo locale-gen
 # Set as default (optional)
 echo "LANG=en_ID.UTF-8" | sudo tee /etc/locale.conf
 ```
+</details>
 
-Note: The system may show the locale as `en_ID.utf8` rather than `en_ID.UTF-8`. Both refer to the same locale.
-
-### Testing Installation
-
-```bash
-# Test if locale is available
-locale -a | grep en_ID
-
-# Test locale settings (use either format)
-LC_ALL=en_ID.UTF-8 locale
-# or
-LC_ALL=en_ID.utf8 locale
-
-# Quick test - should show date in YYYY-MM-DD format
-LC_ALL=en_ID.utf8 date +%x
-```
+**Note**: Systems may display the locale as `en_ID.utf8` or `en_ID.UTF-8`. Both refer to the same locale.
 
 ## Usage
 
-### System-wide
+### Set as System Default
 ```bash
+# Ubuntu/Debian
 sudo update-locale LANG=en_ID.UTF-8 LC_ALL=en_ID.UTF-8
+
+# Fedora/RHEL
+sudo localectl set-locale LANG=en_ID.UTF-8
+
+# Arch Linux
+echo "LANG=en_ID.UTF-8" | sudo tee /etc/locale.conf
 ```
 
-### Per-session
+### Use in Current Session
 ```bash
 export LANG=en_ID.UTF-8
 export LC_ALL=en_ID.UTF-8
 ```
 
-Note: Using `LC_ALL` ensures all locale categories use en_ID. Using only `LANG` may result in some categories falling back to system defaults.
-
-### Application-specific
+### Use for Single Application
 ```bash
 LC_ALL=en_ID.UTF-8 your-application
 ```
 
-## Examples
+**Important**: Use `LC_ALL` to ensure all locale categories use en_ID. Using only `LANG` may result in some categories falling back to system defaults.
+
+## Testing
+
+Verify your installation:
 
 ```bash
-# Date format
-$ LC_ALL=en_ID.UTF-8 date +%x
-2024-01-15
+# Check if installed
+locale -a | grep en_ID
 
-# Currency format
-$ LC_MONETARY=en_ID.UTF-8 printf "%'.2f\n" 1234567.89
-1,234,567.89
+# Test date format (should show: 2024-01-15)
+LC_ALL=en_ID.UTF-8 date +%x
 
-# Time format (24-hour)
-$ LC_TIME=en_ID.UTF-8 date +%X
-14:30:45
+# Test time format (should show: 14:30:45)
+LC_ALL=en_ID.UTF-8 date +%X
+
+# Test currency (number formatting)
+LC_MONETARY=en_ID.UTF-8 printf "%'.2f\n" 1234567.89
+# Output: 1,234,567.89
+
+# Show all locale settings
+LC_ALL=en_ID.UTF-8 locale
 ```
 
-## Rationale
+## Design Decisions
 
-This locale addresses the needs of:
-- International businesses operating in Indonesia
-- Indonesian professionals working in English
-- Software systems requiring English UI with Indonesian regional settings
-- Educational institutions using English as medium of instruction
+### LC_NAME Omission
+
+The LC_NAME category is intentionally left minimal. Indonesian naming conventions don't map to Western name formatting:
+
+- **Single names** are common (Sukarno, Suharto, Junarti)
+- **Name origins** vary widely (Javanese, Balinese, Chinese, Arabic)
+- **Titles** like Pak/Bu are Indonesian, not English
+- **English contexts** typically use Mr./Ms. anyway
+
+Rather than misrepresent Indonesian names, LC_NAME uses a minimal definition.
+
+### British vs American English
+
+British English was chosen because:
+- It's the standard in Indonesian education
+- Used by neighboring Singapore and Malaysia
+- Common in Commonwealth countries
 
 ## Contributing
 
-Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on submitting improvements.
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+### Reporting Issues
+
+Please report bugs or suggestions via [GitHub Issues](https://github.com/Open-Technology-Foundation/en_ID/issues).
 
 ## License
 
@@ -181,8 +217,11 @@ This locale definition is released under the GNU General Public License v3.0. Se
 
 Created and maintained by [Yayasan Teknologi Terbuka Indonesia](https://yatti.id) (Open Technology Foundation).
 
+Contact: info@yatti.id
+
 ## See Also
 
 - [GNU C Library Locales](https://www.gnu.org/software/libc/manual/html_node/Locales.html)
 - [ISO 639 Language Codes](https://www.loc.gov/standards/iso639-2/)
 - [ISO 3166 Country Codes](https://www.iso.org/iso-3166-country-codes.html)
+- [Unicode CLDR](http://cldr.unicode.org/)
