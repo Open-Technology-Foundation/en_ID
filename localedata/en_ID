@@ -128,7 +128,7 @@ END LC_PAPER
 
 % LC_NAME category intentionally omitted
 % Indonesian naming conventions don't map to Western name formatting:
-% - Single names are common (e.g., Sukarno, Suharto, Junarti)  
+% - Single names are common (e.g., Sukarno, Suharto, Junarti)
 % - Names derive from Javanese, Balinese, Chinese, Arabic traditions
 % - Titles like Pak/Bu are Indonesian, not English
 % - In English contexts, Mr./Ms. are typically used
