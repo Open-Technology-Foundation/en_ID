@@ -215,7 +215,7 @@ This locale definition is released under the GNU General Public License v3.0. Se
 
 ## Author
 
-Created and maintained by [Yayasan Teknologi Terbuka Indonesia](https://yatti.id) (Open Technology Foundation).
+Created and maintained by [Yayasan Teknologi Terbuka Indonesia](https://yatti.id) (Indonesian Open Technology Foundation).
 
 Contact: admin@yatti.id
 
