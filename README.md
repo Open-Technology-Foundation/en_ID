@@ -18,8 +18,8 @@ A locale definition for English language users in Indonesia, combining internati
 
 The `en_ID` locale provides English language support tailored for Indonesia. It combines:
 - **British English** spelling conventions (inherited from `en_GB`)
-- **Indonesian** regional formats (currency, dates, numbers)
-- **International** business standards (ISO dates, 24-hour time)
+- **Indonesian** currency format (IDR/Rp)
+- **International** business standards (ISO 8601 dates, Anglo number formatting, 24-hour time)
 
 ### Who needs this?
 
@@ -193,6 +193,14 @@ The LC_NAME category is intentionally left minimal. Indonesian naming convention
 - **English contexts** typically use Mr./Ms. anyway
 
 Rather than misrepresent Indonesian names, LC_NAME uses a minimal definition.
+
+### Date and Number Formats
+
+This locale uses international business formats rather than traditional Indonesian formats:
+- **Dates**: ISO 8601 (YYYY-MM-DD) instead of Indonesian DD/MM/YYYY
+- **Numbers**: Anglo format (1,234.56) instead of Indonesian (1.234,56)
+
+This design choice prioritizes international compatibility for English-language business and technical contexts.
 
 ### British vs American English
 
