@@ -64,8 +64,8 @@ jobs:
     
     - name: Check file format
       run: |
-        # Check for UTF-8 encoding
-        file localedata/en_ID | grep -q "UTF-8" || (echo "Locale file must be UTF-8 encoded" && exit 1)
+        # Check for UTF-8 or ASCII encoding (ASCII is valid UTF-8)
+        file localedata/en_ID | grep -E "(UTF-8|ASCII)" || (echo "Locale file must be UTF-8 encoded" && exit 1)
         
         # Check for trailing whitespace
         ! grep -n "[[:space:]]$" localedata/en_ID || (echo "Found trailing whitespace" && exit 1)
