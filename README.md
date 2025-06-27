@@ -20,6 +20,17 @@ The `en_ID` locale provides English language support tailored for use in Indones
 - **Paper Size**: A4 (297×210mm)
 - **Measurement**: Metric
 
+### Note on LC_NAME
+
+The LC_NAME category has been intentionally omitted from this locale. Indonesian naming conventions are highly diverse and don't map well to the Western-centric name formatting system:
+
+- Single names are common (e.g., Sukarno, Suharto, Junarti)
+- Names may be of Javanese, Balinese, Chinese, Arabic, or other origins
+- Traditional titles (Pak/Bu) are Indonesian language, not English
+- In English contexts, Indonesians typically use Mr./Ms. anyway
+
+Rather than force Indonesian names into an incompatible structure, LC_NAME is left undefined.
+
 ## Installation
 
 ### From Source

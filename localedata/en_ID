@@ -126,6 +126,14 @@ height      297
 width       210
 END LC_PAPER
 
+% LC_NAME category intentionally omitted
+% Indonesian naming conventions don't map to Western name formatting:
+% - Single names are common (e.g., Sukarno, Suharto, Junarti)  
+% - Names derive from Javanese, Balinese, Chinese, Arabic traditions
+% - Titles like Pak/Bu are Indonesian, not English
+% - In English contexts, Mr./Ms. are typically used
+% Rather than misrepresent Indonesian names, LC_NAME is left undefined
+
 LC_NAME
 name_fmt    "<U0025><U0064><U0025><U0074><U0025><U0067><U0025><U0074>/
 <U0025><U006D><U0025><U0074><U0025><U0066>"
