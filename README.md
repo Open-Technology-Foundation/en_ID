@@ -43,14 +43,14 @@ The `en_ID` locale provides English language support tailored for Indonesia. It 
 
 ## Quick Start
 
-Install en_ID as your default locale with one command:
+Install en_ID as your system default locale with one command:
 
 ### Ubuntu/Debian
 ```bash
 wget -O- https://raw.githubusercontent.com/Open-Technology-Foundation/en_ID/main/install-ubuntu.sh | sudo bash
 ```
 
-### Fedora/RHEL/CentOS
+### Fedora/RHEL/CentOS/Rocky/AlmaLinux
 ```bash
 wget -O- https://raw.githubusercontent.com/Open-Technology-Foundation/en_ID/main/install-fedora.sh | sudo bash
 ```
@@ -64,12 +64,16 @@ wget -O- https://raw.githubusercontent.com/Open-Technology-Foundation/en_ID/main
 
 ### Automated Installation
 
-The quick start commands above will:
-- ✓ Install the en_ID locale files
-- ✓ Generate the locale
-- ✓ Optionally set as system default
-- ✓ Backup existing locale settings
-- ✓ Test the installation
+The installation scripts provide a fully automated setup that:
+- Installs the en_ID locale files
+- Generates the compiled locale
+- Sets en_ID as the system default locale
+- Backs up existing locale settings
+- Updates SSH configuration for locale support
+- Configures environment files for application compatibility
+- Tests the installation
+
+No user interaction is required. The scripts automatically configure all locale categories (LC_ALL, LC_CTYPE, LC_NUMERIC, etc.) for comprehensive system-wide support.
 
 ### Manual Installation
 
@@ -161,7 +165,19 @@ LC_ALL=en_ID.UTF-8 your-application
 
 ## Testing
 
-Verify your installation:
+### Run Full Test Suite
+
+```bash
+# Run all tests
+make test
+
+# Test specific categories
+./tests/test_en_ID.sh LC_TIME
+./tests/test_en_ID.sh LC_MONETARY
+./tests/test_en_ID.sh LC_NUMERIC
+```
+
+### Manual Verification
 
 ```bash
 # Check if installed
@@ -176,6 +192,10 @@ LC_ALL=en_ID.UTF-8 date +%X
 # Test currency (number formatting)
 LC_MONETARY=en_ID.UTF-8 printf "%'.2f\n" 1234567.89
 # Output: 1,234,567.89
+
+# Test full date with day name
+LC_ALL=en_ID.UTF-8 date +"%x = %A, %d %B %Y"
+# Output: 2024-01-15 = Monday, 15 January 2024
 
 # Show all locale settings
 LC_ALL=en_ID.UTF-8 locale
@@ -221,9 +241,37 @@ British English was chosen because:
 - Used by neighboring Singapore and Malaysia
 - Common in Commonwealth countries
 
+## Building from Source
+
+```bash
+# Clone the repository
+git clone https://github.com/Open-Technology-Foundation/en_ID.git
+cd en_ID
+
+# Check syntax and compile
+make
+
+# Run tests
+make test
+
+# Install system-wide (requires sudo)
+sudo make install
+
+# Clean build artifacts
+make clean
+```
+
 ## Contributing
 
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+### Development Workflow
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes to `localedata/en_ID`
+4. Run `make test` to verify your changes
+5. Submit a pull request
 
 ### Reporting Issues
 
