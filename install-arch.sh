@@ -1,91 +1,131 @@
 #!/bin/bash
 set -euo pipefail
 
-# Script to install en_ID locale on Arch Linux
-# No user intervention required
+# Script to install en_ID locale and set it as system default
+# For Arch Linux and derivatives
+# No user intervention
 
 # Colors for output
-declare -r RED='\033[0;31m'
-declare -r GREEN='\033[0;32m'
-declare -r YELLOW='\033[1;33m'
-declare -r NC='\033[0m' # No Color
+declare -- RED='' GREEN='' YELLOW='' NC=''
+if [[ -t 2 ]]; then
+  RED=$'\033[0;31m'
+  GREEN='\033[0;32m'
+  YELLOW=$'\033[0;33m' 
+  NC=$'\033[0m'
+fi
+readonly -- RED GREEN YELLOW NC
 
 # Check if running as root
-if [[ $EUID -ne 0 ]]; then
-   echo -e "${RED}This script must be run as root or with sudo${NC}"
-   exit 1
+if ((EUID)); then
+  >&2 echo -e "${RED}This script must be run as root or with sudo${NC}"
+  exit 1
 fi
 
-echo -e "${GREEN}Installing en_ID locale on Arch Linux...${NC}"
+echo -e "${GREEN}Installing en_ID locale as system default...${NC}"
 
 # Install required packages
-echo "Installing required packages..."
+echo 'Installing required packages...'
 pacman -S --needed --noconfirm git make glibc
 
 # Clone the repository to temp directory
-declare -r TEMP_DIR=$(mktemp -d)
-echo "Downloading en_ID locale..."
-git clone --quiet https://github.com/Open-Technology-Foundation/en_ID.git "$TEMP_DIR/en_ID"
+declare -- TEMP_DIR
+TEMP_DIR=$(mktemp -d)
+echo 'Downloading en_ID locale...'
+git clone --quiet https://github.com/Open-Technology-Foundation/en_ID.git "$TEMP_DIR"/en_ID
 
-# Copy locale file to system location
-echo "Installing locale file..."
-cp "$TEMP_DIR/en_ID/localedata/en_ID" /usr/share/i18n/locales/
+# Change to repo directory
+cd "$TEMP_DIR"/en_ID
+
+# Install the locale
+echo 'Installing locale files...'
+make install
 
 # Add to locale.gen if not already present
 if ! grep -q "^en_ID.UTF-8" /etc/locale.gen; then
-    echo "en_ID.UTF-8 UTF-8" >> /etc/locale.gen
+  echo "en_ID.UTF-8 UTF-8" >> /etc/locale.gen
 fi
 
 # Generate locales
-echo "Generating locale..."
+echo 'Generating locale...'
 locale-gen
 
 # Verify installation
-if ! locale -a | grep -q "en_ID"; then
-    echo -e "${RED}Failed to install en_ID locale${NC}"
-    exit 1
+if ! locale -a | grep -q 'en_ID'; then
+  >&2 echo -e "${RED}Failed to install en_ID locale${NC}"
+  exit 1
 fi
 
 echo -e "${GREEN}en_ID locale installed successfully${NC}"
 
-# Set as default if requested
-read -p "Set en_ID as system default locale? (y/N) " -n 1 -r
-echo
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    # Backup current locale settings
-    if [[ -f /etc/locale.conf ]]; then
-        cp /etc/locale.conf /etc/locale.conf.backup
-        echo "Backed up current locale settings to /etc/locale.conf.backup"
-    fi
-    
-    # Set system locale
-    echo "LANG=en_ID.UTF-8" > /etc/locale.conf
-    echo "LC_ALL=en_ID.UTF-8" >> /etc/locale.conf
-    
-    # Update for current session
-    export LANG=en_ID.UTF-8
-    export LC_ALL=en_ID.UTF-8
+# Backup current locale settings
+if [[ -f /etc/locale.conf ]]; then
+  cp /etc/locale.conf /etc/locale.conf.backup
+  echo 'Backed up current locale settings to /etc/locale.conf.backup'
+fi
+
+# Set en_ID as default locale
+echo 'Setting en_ID as default locale...'
+# Write comprehensive locale settings
+cat > /etc/locale.conf <<EOF
+LANG=en_ID.UTF-8
+LC_ALL=en_ID.UTF-8
+LC_CTYPE=en_ID.UTF-8
+LC_NUMERIC=en_ID.UTF-8
+LC_TIME=en_ID.UTF-8
+LC_COLLATE=en_ID.UTF-8
+LC_MONETARY=en_ID.UTF-8
+LC_MESSAGES=en_ID.UTF-8
+LC_PAPER=en_ID.UTF-8
+LC_NAME=en_ID.UTF-8
+LC_ADDRESS=en_ID.UTF-8
+LC_TELEPHONE=en_ID.UTF-8
+LC_MEASUREMENT=en_ID.UTF-8
+LC_IDENTIFICATION=en_ID.UTF-8
+EOF
+
+# Also update /etc/environment for some applications
+if ! grep -q 'LANG=en_ID.UTF-8' /etc/environment 2>/dev/null; then
+  echo 'LANG=en_ID.UTF-8' >> /etc/environment
+  echo 'LC_ALL=en_ID.UTF-8' >> /etc/environment
+fi
+
+# Check SSH configuration
+declare -i SSH_CONFIG_UPDATED=0
+if [[ -f /etc/ssh/sshd_config ]]; then
+  if ! grep -q "^AcceptEnv.*LC_\*" /etc/ssh/sshd_config; then
+    echo "AcceptEnv LANG LC_*" >> /etc/ssh/sshd_config
+    SSH_CONFIG_UPDATED=1
+  fi
 fi
 
 # Clean up
-rm -rf "$TEMP_DIR"
+rm -rf "${TEMP_DIR:?}"
 
 echo -e "${GREEN}Installation complete!${NC}"
 echo
-echo "Current locale settings:"
+echo 'Current locale settings:'
 locale
+
+echo
+echo -e "${YELLOW}IMPORTANT: You need to log out and log back in for the changes to take full effect.${NC}"
+echo -e "${YELLOW}For SSH sessions, reconnect to apply the new locale.${NC}"
+
+if ((SSH_CONFIG_UPDATED)); then
+  echo
+  echo -e "${YELLOW}NOTE: SSH configuration was updated to accept locale environment variables.${NC}"
+  echo -e "${YELLOW}      You should restart the SSH service when convenient:${NC}"
+  echo -e "${YELLOW}      sudo systemctl restart sshd${NC}"
+fi
+
+# Arch-specific note
+echo
+echo -e "${YELLOW}Note: You may need to regenerate your initramfs if using early userspace.${NC}"
+echo -e "${YELLOW}      Run: mkinitcpio -P${NC}"
 
 # Test the locale
 echo
-echo "Testing locale (date format):"
+echo 'Testing locale (date format):'
 LC_ALL=en_ID.UTF-8 date +"%x = %A, %d %B %Y"
-
-echo
-echo -e "${YELLOW}Log out and back in for changes to take full effect.${NC}"
-
-# Arch-specific note
-echo -e "${YELLOW}Note: You may need to regenerate your initramfs if using early userspace.${NC}"
-echo -e "${YELLOW}      Run: mkinitcpio -P${NC}"
 
 exit 0
 #fin
