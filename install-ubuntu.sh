@@ -1,9 +1,12 @@
 #!/bin/bash
 set -euo pipefail
 
-# Script to install en_ID locale and set it as system default
+# Script to install en_ID locale and automatically set it as system default
 # For Ubuntu Desktop and Server
-# No user intervention
+# Fully automated installation with persistence
+
+# Repository URL (can be overridden by environment variable)
+readonly REPO_URL="${EN_ID_REPO_URL:-https://github.com/Open-Technology-Foundation/en_ID.git}"
 
 # Colors for output
 declare -- RED='' GREEN='' YELLOW='' NC=''
@@ -51,7 +54,11 @@ apt-get install -y -qq git make locales
 declare -- TEMP_DIR
 TEMP_DIR=$(mktemp -d)
 echo 'Downloading en_ID locale...'
-git clone --quiet https://github.com/Open-Technology-Foundation/en_ID.git "$TEMP_DIR"/en_ID
+if ! git clone --quiet "$REPO_URL" "$TEMP_DIR"/en_ID; then
+  >&2 echo -e "${RED}Failed to download en_ID repository${NC}"
+  rm -rf "${TEMP_DIR:?}"
+  exit 1
+fi
 
 # Change to repo directory
 cd "$TEMP_DIR"/en_ID
@@ -95,6 +102,24 @@ update-locale LANG=en_ID.UTF-8 \
 if ! grep -q 'LANG=en_ID.UTF-8' /etc/environment; then
   echo 'LANG=en_ID.UTF-8' >> /etc/environment
   echo 'LC_ALL=en_ID.UTF-8' >> /etc/environment
+fi
+
+# Add to locale.gen for persistence across system updates
+if [[ -f /etc/locale.gen ]]; then
+  if ! grep -q "^en_ID.UTF-8" /etc/locale.gen; then
+    echo "en_ID.UTF-8 UTF-8" >> /etc/locale.gen
+    echo 'Added en_ID to /etc/locale.gen for persistence'
+  fi
+fi
+
+# Create APT hook to regenerate locale after package updates
+declare -- APT_HOOK_FILE="/etc/apt/apt.conf.d/99en-id-locale-gen"
+if [[ ! -f "$APT_HOOK_FILE" ]]; then
+  cat > "$APT_HOOK_FILE" << 'EOF'
+// Automatically regenerate en_ID locale after package updates
+DPkg::Post-Invoke { "if [ -f /etc/locale.gen ] && grep -q '^en_ID.UTF-8' /etc/locale.gen; then locale-gen en_ID.UTF-8 2>/dev/null || true; fi"; };
+EOF
+  echo 'Created APT hook to maintain en_ID locale after system updates'
 fi
 
 # Check SSH configuration
