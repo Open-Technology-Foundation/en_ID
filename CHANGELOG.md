@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Persistence mechanism via `ensure-persistence.sh` script
+- `make install-persistent` target for automatic locale regeneration after system updates
+- Support for preventing locale removal during glibc/locale package updates
+- Automatic setup improvements in installation scripts
+- Package manager hooks for Debian/Ubuntu, Fedora/RHEL, and Arch Linux
+- `make uninstall`, `make info`, and `make help` targets
+- Error handling for git clone failures in installation scripts
+- Configurable repository URL via EN_ID_REPO_URL environment variable
+
+### Changed
+- Installation scripts now include persistence setup by default
+- Improved documentation for troubleshooting locale persistence issues
+- Updated README with comprehensive build and installation options
+- **Modernized locale definition to use direct UTF-8 text instead of Unicode code points**
+  - Replaced legacy `<U0041>` format with direct text like "A"
+  - Improved readability and maintainability
+  - Aligned with modern locale best practices (en_GB, en_US, etc.)
+
+### Fixed
+- Removed unused YELLOW variable from ensure-persistence.sh
+- Corrected installation script documentation to reflect automatic setup
+
 ## [1.0.0] - 2024-06-26
 
 ### Added

@@ -1,9 +1,12 @@
 #!/bin/bash
 set -euo pipefail
 
-# Script to install en_ID locale and set it as system default
+# Script to install en_ID locale and automatically set it as system default
 # For Arch Linux and derivatives
-# No user intervention
+# Fully automated installation with persistence
+
+# Repository URL (can be overridden by environment variable)
+readonly REPO_URL="${EN_ID_REPO_URL:-https://github.com/Open-Technology-Foundation/en_ID.git}"
 
 # Colors for output
 declare -- RED='' GREEN='' YELLOW='' NC=''
@@ -31,7 +34,11 @@ pacman -S --needed --noconfirm git make glibc
 declare -- TEMP_DIR
 TEMP_DIR=$(mktemp -d)
 echo 'Downloading en_ID locale...'
-git clone --quiet https://github.com/Open-Technology-Foundation/en_ID.git "$TEMP_DIR"/en_ID
+if ! git clone --quiet "$REPO_URL" "$TEMP_DIR"/en_ID; then
+  >&2 echo -e "${RED}Failed to download en_ID repository${NC}"
+  rm -rf "${TEMP_DIR:?}"
+  exit 1
+fi
 
 # Change to repo directory
 cd "$TEMP_DIR"/en_ID
@@ -87,6 +94,30 @@ EOF
 if ! grep -q 'LANG=en_ID.UTF-8' /etc/environment 2>/dev/null; then
   echo 'LANG=en_ID.UTF-8' >> /etc/environment
   echo 'LC_ALL=en_ID.UTF-8' >> /etc/environment
+fi
+
+# Create pacman hook for persistence
+declare -- HOOK_DIR="/etc/pacman.d/hooks"
+declare -- HOOK_FILE="$HOOK_DIR/en_id_locale.hook"
+
+# Create directory if it doesn't exist
+if [[ ! -d "$HOOK_DIR" ]]; then
+  mkdir -p "$HOOK_DIR"
+fi
+
+if [[ ! -f "$HOOK_FILE" ]]; then
+  cat > "$HOOK_FILE" << 'EOF'
+[Trigger]
+Operation = Upgrade
+Type = Package
+Target = glibc
+
+[Action]
+Description = Regenerate en_ID locale
+When = PostTransaction
+Exec = /usr/bin/bash -c "if grep -q '^en_ID.UTF-8' /etc/locale.gen; then locale-gen en_ID.UTF-8 2>/dev/null || true; fi"
+EOF
+  echo 'Created Pacman hook to maintain en_ID locale after system updates'
 fi
 
 # Check SSH configuration

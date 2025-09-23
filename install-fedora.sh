@@ -1,9 +1,12 @@
 #!/bin/bash
 set -euo pipefail
 
-# Script to install en_ID locale and set it as system default
+# Script to install en_ID locale and automatically set it as system default
 # For Fedora/RHEL/CentOS/Rocky/AlmaLinux
-# No user intervention
+# Fully automated installation
+
+# Repository URL (can be overridden by environment variable)
+readonly REPO_URL="${EN_ID_REPO_URL:-https://github.com/Open-Technology-Foundation/en_ID.git}"
 
 # Colors for output
 declare -- RED='' GREEN='' YELLOW='' NC=''
@@ -31,7 +34,11 @@ dnf install -y -q git make glibc-locale-source glibc-langpack-en
 declare -- TEMP_DIR
 TEMP_DIR=$(mktemp -d)
 echo 'Downloading en_ID locale...'
-git clone --quiet https://github.com/Open-Technology-Foundation/en_ID.git "$TEMP_DIR"/en_ID
+if ! git clone --quiet "$REPO_URL" "$TEMP_DIR"/en_ID; then
+  >&2 echo -e "${RED}Failed to download en_ID repository${NC}"
+  rm -rf "${TEMP_DIR:?}"
+  exit 1
+fi
 
 # Change to repo directory
 cd "$TEMP_DIR"/en_ID
@@ -83,6 +90,24 @@ fi
 if ! grep -q 'LANG=en_ID.UTF-8' /etc/environment 2>/dev/null; then
   echo 'LANG=en_ID.UTF-8' >> /etc/environment
   echo 'LC_ALL=en_ID.UTF-8' >> /etc/environment
+fi
+
+# Create DNF/YUM post-transaction hook for persistence
+declare -- HOOK_DIR="/etc/dnf/plugins"
+declare -- HOOK_FILE="$HOOK_DIR/post-transaction-actions.d/en_id_locale.action"
+
+# Create directory if it doesn't exist
+if [[ ! -d "$HOOK_DIR/post-transaction-actions.d" ]]; then
+  mkdir -p "$HOOK_DIR/post-transaction-actions.d"
+fi
+
+if [[ ! -f "$HOOK_FILE" ]]; then
+  cat > "$HOOK_FILE" << 'EOF'
+# Regenerate en_ID locale after glibc updates
+glibc*:update:/usr/bin/localedef -i en_ID -f UTF-8 en_ID.UTF-8 2>/dev/null || true
+glibc*:install:/usr/bin/localedef -i en_ID -f UTF-8 en_ID.UTF-8 2>/dev/null || true
+EOF
+  echo 'Created DNF/YUM hook to maintain en_ID locale after system updates'
 fi
 
 # Check SSH configuration

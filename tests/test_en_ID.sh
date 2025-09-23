@@ -6,7 +6,9 @@ set -uo pipefail
 
 # Locale name varies between build and system
 declare LOCALE="en_ID.UTF-8"
-declare -r BUILD_DIR="$(dirname "$0")/../build"
+declare BUILD_DIR
+BUILD_DIR="$(dirname "$0")/../build"
+declare -r BUILD_DIR
 declare -i TESTS_PASSED=0
 declare -i TESTS_FAILED=0
 

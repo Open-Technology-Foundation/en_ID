@@ -60,6 +60,16 @@ wget -O- https://raw.githubusercontent.com/Open-Technology-Foundation/en_ID/main
 wget -O- https://raw.githubusercontent.com/Open-Technology-Foundation/en_ID/main/install-arch.sh | sudo bash
 ```
 
+### Ensure Persistence (All Distributions)
+
+If you've already installed en_ID and want to ensure it persists through system updates:
+
+```bash
+# Download and run the persistence script
+wget https://raw.githubusercontent.com/Open-Technology-Foundation/en_ID/main/ensure-persistence.sh
+sudo bash ensure-persistence.sh
+```
+
 ## Installation
 
 ### Automated Installation
@@ -67,13 +77,15 @@ wget -O- https://raw.githubusercontent.com/Open-Technology-Foundation/en_ID/main
 The installation scripts provide a fully automated setup that:
 - Installs the en_ID locale files
 - Generates the compiled locale
-- Sets en_ID as the system default locale
-- Backs up existing locale settings
+- Automatically sets en_ID as the system default locale
+- Backs up existing locale settings before making changes
 - Updates SSH configuration for locale support
 - Configures environment files for application compatibility
-- Tests the installation
+- Runs verification tests to ensure proper installation
+- Sets up persistence mechanisms to prevent removal during system updates
+- Includes error handling for network and installation issues
 
-No user interaction is required. The scripts automatically configure all locale categories (LC_ALL, LC_CTYPE, LC_NUMERIC, etc.) for comprehensive system-wide support.
+The scripts automatically configure all locale categories (LC_ALL, LC_CTYPE, LC_NUMERIC, etc.) for comprehensive system-wide support. The repository URL can be customized by setting the `EN_ID_REPO_URL` environment variable.
 
 ### Manual Installation
 
@@ -241,6 +253,14 @@ British English was chosen because:
 - Used by neighboring Singapore and Malaysia
 - Common in Commonwealth countries
 
+### Modern UTF-8 Format
+
+The locale definition uses direct UTF-8 text format instead of legacy Unicode code points:
+- **Direct text**: `currency_symbol "Rp"` instead of `<U0052><U0070>`
+- **Improved readability**: Day names like `"Monday"` are immediately recognizable
+- **Easier maintenance**: No need to look up Unicode tables
+- **Consistent with modern locales**: Follows the same format as en_GB, en_US, etc.
+
 ## Building from Source
 
 ```bash
@@ -257,9 +277,77 @@ make test
 # Install system-wide (requires sudo)
 sudo make install
 
+# Install with persistence (prevents removal on system updates)
+sudo make install-persistent
+
+# Uninstall the locale
+sudo make uninstall
+
 # Clean build artifacts
 make clean
+
+# Show available make targets
+make help
+
+# Display locale information
+make info
 ```
+
+## Troubleshooting
+
+### Locale disappears after system updates
+
+If the en_ID locale disappears after system updates (showing errors like `cannot change locale (en_ID.UTF-8): No such file or directory`), this is likely because the locale was removed when glibc or locale packages were updated.
+
+#### Quick Fix
+
+Run the persistence script to set up automatic regeneration:
+
+```bash
+sudo ./ensure-persistence.sh
+```
+
+This script will:
+- Add en_ID to `/etc/locale.gen` (Debian/Ubuntu/Arch)
+- Create package manager hooks to automatically regenerate the locale after updates
+- Regenerate the locale immediately
+
+#### Manual Fix
+
+If you prefer to fix it manually:
+
+```bash
+# Regenerate the locale
+sudo localedef -i en_ID -f UTF-8 en_ID.UTF-8
+
+# Ensure persistence for Debian/Ubuntu
+echo "en_ID.UTF-8 UTF-8" | sudo tee -a /etc/locale.gen
+sudo locale-gen
+
+# Create APT hook for automatic regeneration (Debian/Ubuntu)
+echo 'DPkg::Post-Invoke { "if [ -f /etc/locale.gen ] && grep -q \"^en_ID.UTF-8\" /etc/locale.gen; then locale-gen en_ID.UTF-8 2>/dev/null || true; fi"; };' | sudo tee /etc/apt/apt.conf.d/99en-id-locale-gen
+```
+
+#### Prevention
+
+The updated installation scripts now include persistence mechanisms by default. If you installed en_ID before this update, run:
+
+```bash
+# Using make
+sudo make install-persistent
+
+# Or using the persistence script
+sudo ./ensure-persistence.sh
+```
+
+### Locale not taking effect
+
+If you've installed the locale but it's not taking effect:
+
+1. **Log out and log back in** - Session variables need to be reloaded
+2. **For SSH sessions** - Disconnect and reconnect
+3. **Check your shell configuration** - Ensure no conflicting LANG/LC_* variables in `~/.bashrc` or `~/.profile`
+4. **Verify with**: `locale` command should show en_ID.UTF-8
 
 ## Contributing
 
