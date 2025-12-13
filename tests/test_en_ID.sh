@@ -126,25 +126,64 @@ test_paper() {
 
 test_telephone() {
   echo -e "\n${YELLOW}Testing LC_TELEPHONE${NC}"
-  
+
   # Test international format
-  run_test "tel_int_fmt" "locale tel_int_fmt" "+%c ;%a ;%l"
+  run_test "tel_int_fmt" "locale tel_int_fmt" "+%c %a %l"
+
+  # Test domestic format (includes trunk prefix 0)
+  run_test "tel_dom_fmt" "locale tel_dom_fmt" "(0%a) %l"
+
+  # Test country code
+  run_test "int_prefix" "locale int_prefix" "62"
+
+  # Test international access code (generic prefix)
+  run_test "int_select" "locale int_select" "00"
 }
 
 test_address() {
   echo -e "\n${YELLOW}Testing LC_ADDRESS${NC}"
-  
+
   # Test country codes
   run_test "country_ab2" "locale country_ab2" "ID"
   run_test "country_ab3" "locale country_ab3" "IDN"
   run_test "country_num" "locale country_num" "360"
+
+  # Test extended address fields
+  run_test "country_name" "locale country_name" "Indonesia"
+  run_test "country_car" "locale country_car" "RI"
+  run_test "lang_name" "locale lang_name" "English"
+  run_test "lang_ab" "locale lang_ab" "en"
+  run_test "lang_term" "locale lang_term" "eng"
 }
 
 test_measurement() {
   echo -e "\n${YELLOW}Testing LC_MEASUREMENT${NC}"
-  
+
   # Test measurement system (1 = metric)
   run_test "measurement" "locale measurement" "1"
+}
+
+test_name() {
+  echo -e "\n${YELLOW}Testing LC_NAME${NC}"
+
+  # Test name format
+  run_test "name_fmt" "locale name_fmt" "%d%t%g%t%m%t%f"
+}
+
+test_time_extended() {
+  echo -e "\n${YELLOW}Testing LC_TIME Extended${NC}"
+
+  # Test week settings (ISO 8601)
+  run_test "first_weekday" "locale first_weekday" "2"
+
+  # Test 12-hour format availability
+  run_test "am_pm" "locale am_pm" "AM;PM"
+  run_test "t_fmt_ampm" "locale t_fmt_ampm" "%I:%M:%S %p"
+
+  # Test combined datetime format (ISO-aligned)
+  if [[ "${USE_SYSTEM_LOCALE:-false}" == "true" ]]; then
+    run_test "datetime format" "date -d '2024-01-15 14:30:45' +%c" "Mon 2024-01-15 14:30:45"
+  fi
 }
 
 # Main execution
@@ -176,25 +215,29 @@ main() {
     LC_MONETARY) test_monetary ;;
     LC_NUMERIC) test_numeric ;;
     LC_TIME) test_time ;;
+    LC_TIME_EXT) test_time_extended ;;
     LC_MESSAGES) test_messages ;;
     LC_PAPER) test_paper ;;
     LC_TELEPHONE) test_telephone ;;
     LC_ADDRESS) test_address ;;
+    LC_NAME) test_name ;;
     LC_MEASUREMENT) test_measurement ;;
     all)
       test_monetary
       test_numeric
       test_time
+      test_time_extended
       test_messages
       test_paper
       test_telephone
       test_address
+      test_name
       test_measurement
       ;;
     *)
       echo "Unknown category: $category"
       echo "Usage: $0 [category|all]"
-      echo "Categories: LC_MONETARY, LC_NUMERIC, LC_TIME, LC_MESSAGES, LC_PAPER, LC_TELEPHONE, LC_ADDRESS, LC_MEASUREMENT"
+      echo "Categories: LC_MONETARY, LC_NUMERIC, LC_TIME, LC_TIME_EXT, LC_MESSAGES, LC_PAPER, LC_TELEPHONE, LC_ADDRESS, LC_NAME, LC_MEASUREMENT"
       exit 1
       ;;
   esac

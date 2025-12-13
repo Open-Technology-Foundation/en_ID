@@ -33,13 +33,15 @@ The `en_ID` locale provides English language support tailored for Indonesia. It 
 | Category | Setting | Example |
 |----------|---------|---------|
 | **Language** | English (British spelling) | colour, centre |
-| **Currency** | Indonesian Rupiah | Rp 1,234,567.89 |
+| **Currency** | Indonesian Rupiah | Rp1,234,567.89 |
 | **Numbers** | Decimal point, comma separator | 1,234,567.89 |
 | **Date** | ISO 8601 format | 2024-01-15 |
-| **Time** | 24-hour format | 14:30:45 |
-| **First Day** | Monday | - |
+| **DateTime** | ISO with weekday | Mon 2024-01-15 14:30:45 |
+| **Time** | 24-hour default, 12-hour available | 14:30:45 / 2:30:45 PM |
+| **Week** | ISO 8601 numbering, Monday start | Week 1 contains first Thursday |
 | **Paper** | A4 (297×210mm) | - |
 | **Measurement** | Metric | - |
+| **Country Code** | +62, RI | - |
 
 ## Quick Start
 
@@ -180,13 +182,17 @@ LC_ALL=en_ID.UTF-8 your-application
 ### Run Full Test Suite
 
 ```bash
-# Run all tests
+# Run all tests (39 tests across 10 categories)
 make test
 
 # Test specific categories
 ./tests/test_en_ID.sh LC_TIME
+./tests/test_en_ID.sh LC_TIME_EXT    # Extended: week, am_pm, datetime
 ./tests/test_en_ID.sh LC_MONETARY
 ./tests/test_en_ID.sh LC_NUMERIC
+./tests/test_en_ID.sh LC_ADDRESS
+./tests/test_en_ID.sh LC_TELEPHONE
+./tests/test_en_ID.sh LC_NAME
 ```
 
 ### Manual Verification
@@ -198,8 +204,14 @@ locale -a | grep en_ID
 # Test date format (should show: 2024-01-15)
 LC_ALL=en_ID.UTF-8 date +%x
 
+# Test datetime format (should show: Fri 2024-01-15 14:30:45)
+LC_ALL=en_ID.UTF-8 date -d "2024-01-15 14:30:45" +%c
+
 # Test time format (should show: 14:30:45)
 LC_ALL=en_ID.UTF-8 date +%X
+
+# Test 12-hour format (should show: 02:30:45 PM)
+LC_ALL=en_ID.UTF-8 date -d "14:30:45" +%r
 
 # Test currency (number formatting)
 LC_MONETARY=en_ID.UTF-8 printf "%'.2f\n" 1234567.89
@@ -215,32 +227,36 @@ LC_ALL=en_ID.UTF-8 locale
 
 ## Design Decisions
 
-### LC_NAME Omission
+### LC_NAME: Minimal Definition
 
-The LC_NAME category is intentionally left minimal. Indonesian naming conventions don't map to Western name formatting:
+The LC_NAME category uses a minimal definition because Indonesian naming conventions don't map well to Western name formatting:
 
 - **Single names** are common (Sukarno, Suharto, Junarti)
 - **Name origins** vary widely (Javanese, Balinese, Chinese, Arabic)
 - **Titles** like Pak/Bu are Indonesian, not English
 - **English contexts** typically use Mr./Ms. anyway
 
-Rather than misrepresent Indonesian names, LC_NAME uses a minimal definition.
+The provided `name_fmt` supports basic English formal contexts while avoiding misrepresentation of Indonesian naming patterns.
 
 ### Indonesian Standards Adopted
 
 The en_ID locale adopts these standards from Indonesia:
 
 - **Currency**: Indonesian Rupiah (IDR/Rp) with standard positioning
-- **Country Codes**: ID (alpha-2), IDN (alpha-3), 360 (numeric)
-- **Telephone**: International format with +62 country code
+- **Country Codes**: ID (alpha-2), IDN (alpha-3), 360 (numeric), RI (vehicle registration)
+- **Telephone**: +62 country code, 001 international access, domestic format with area codes
+- **Address**: Indonesian postal format with full country and language metadata
 - **Paper Size**: A4 (297×210mm)
 - **Measurement**: Metric system
-- **Week Start**: Monday
+- **Week Start**: Monday (ISO 8601 week numbering)
 
 ### International Standards Used
 
 Rather than traditional Indonesian formats, en_ID uses:
 - **Dates**: ISO 8601 (YYYY-MM-DD) instead of Indonesian DD/MM/YYYY
+- **DateTime**: ISO 8601 date with weekday prefix (Mon 2024-01-15 14:30:45)
+- **Time**: 24-hour format by default; 12-hour format available via `%r` for compatibility
+- **Week Numbering**: ISO 8601 (week 1 contains the first Thursday)
 - **Numbers**: Anglo format (1,234.56) instead of Indonesian (1.234,56)
 - **Language**: English (inherited from en_GB and en_SG)
 
@@ -260,6 +276,22 @@ The locale definition uses direct UTF-8 text format instead of legacy Unicode co
 - **Improved readability**: Day names like `"Monday"` are immediately recognizable
 - **Easier maintenance**: No need to look up Unicode tables
 - **Consistent with modern locales**: Follows the same format as en_GB, en_US, etc.
+
+### Locale Categories Reference
+
+| Category | Description |
+|----------|-------------|
+| LC_CTYPE | Character classification (inherited from en_GB) |
+| LC_COLLATE | String collation order (ISO 14651) |
+| LC_MONETARY | Currency: IDR/Rp, decimal point, comma grouping |
+| LC_NUMERIC | Numbers: decimal point, comma separator |
+| LC_TIME | Date/time: ISO 8601, 24h default, 12h available, ISO week numbering |
+| LC_MESSAGES | Yes/no expressions (inherited from en_SG) |
+| LC_PAPER | A4 paper size (297x210mm) |
+| LC_NAME | Minimal name formatting for English contexts |
+| LC_ADDRESS | Indonesian country codes (ID, IDN, RI), English language codes |
+| LC_TELEPHONE | +62 prefix, 001 international access, domestic format |
+| LC_MEASUREMENT | Metric system |
 
 ## Building from Source
 
