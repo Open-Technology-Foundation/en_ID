@@ -37,9 +37,9 @@ Thank you for your interest in contributing to the English locale for Indonesia!
 
 ### Locale File Format
 
-- Use Unicode code points (e.g., `<U0041>` for 'A')
+- Use direct UTF-8 text (e.g., `"Monday"` instead of `<U004D><U006F><U006E><U0064><U0061><U0079>`)
+- This improves readability and aligns with modern locale best practices
 - Follow GNU libc locale format specifications
-- Maintain consistent indentation and formatting
 - Add comments to explain non-obvious choices
 
 ### Testing
