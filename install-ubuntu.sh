@@ -1,22 +1,19 @@
 #!/bin/bash
-set -euo pipefail
-
 # Script to install en_ID locale and automatically set it as system default
 # For Ubuntu Desktop and Server
 # Fully automated installation with persistence
+set -euo pipefail
+shopt -s inherit_errexit
 
 # Repository URL (can be overridden by environment variable)
-readonly REPO_URL="${EN_ID_REPO_URL:-https://github.com/Open-Technology-Foundation/en_ID.git}"
+declare -r REPO_URL="${EN_ID_REPO_URL:-https://github.com/Open-Technology-Foundation/en_ID.git}"
 
 # Colors for output
-declare -- RED='' GREEN='' YELLOW='' NC=''
-if [[ -t 2 ]]; then
-  RED=$'\033[0;31m'
-  GREEN='\033[0;32m'
-  YELLOW=$'\033[0;33m' 
-  NC=$'\033[0m'
+if [[ -t 1 && -t 2 ]]; then
+  declare -r RED=$'\033[0;31m' GREEN=$'\033[0;32m' YELLOW=$'\033[0;33m' NC=$'\033[0m'
+else
+  declare -r RED='' GREEN='' YELLOW='' NC=''
 fi
-readonly -- RED GREEN YELLOW NC
 
 # Check if running as root
 if ((EUID)); then
@@ -32,7 +29,7 @@ echo 'Updating package lists...'
 declare -- CNF_HOOK=''
 for conf in /etc/apt/apt.conf.d/*; do
   if grep -q 'cnf-update-db' "$conf" 2>/dev/null; then
-    CNF_HOOK="$conf"
+    CNF_HOOK=$conf
     break
   fi
 done
@@ -107,13 +104,13 @@ fi
 # Add to locale.gen for persistence across system updates
 if [[ -f /etc/locale.gen ]]; then
   if ! grep -q "^en_ID.UTF-8" /etc/locale.gen; then
-    echo "en_ID.UTF-8 UTF-8" >> /etc/locale.gen
+    echo 'en_ID.UTF-8 UTF-8' >> /etc/locale.gen
     echo 'Added en_ID to /etc/locale.gen for persistence'
   fi
 fi
 
 # Create APT hook to regenerate locale after package updates
-declare -- APT_HOOK_FILE="/etc/apt/apt.conf.d/99en-id-locale-gen"
+declare -- APT_HOOK_FILE=/etc/apt/apt.conf.d/99en-id-locale-gen
 if [[ ! -f "$APT_HOOK_FILE" ]]; then
   cat > "$APT_HOOK_FILE" << 'EOF'
 // Automatically regenerate en_ID locale after package updates
@@ -126,7 +123,7 @@ fi
 declare -i SSH_CONFIG_UPDATED=0
 if [[ -f /etc/ssh/sshd_config ]]; then
   if ! grep -q "^AcceptEnv.*LC_\*" /etc/ssh/sshd_config; then
-    echo "AcceptEnv LANG LC_*" >> /etc/ssh/sshd_config
+    echo 'AcceptEnv LANG LC_*' >> /etc/ssh/sshd_config
     SSH_CONFIG_UPDATED=1
   fi
 fi
@@ -153,7 +150,7 @@ fi
 # Test the locale
 echo
 echo 'Testing locale (date format):'
-LC_ALL=en_ID.UTF-8 date +"%x = %A, %d %B %Y"
+LC_ALL=en_ID.UTF-8 date +'%x = %A, %d %B %Y'
 
 exit 0
 #fin
