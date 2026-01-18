@@ -1,5 +1,5 @@
-#!/bin/bash
-set -uo pipefail
+#!/usr/bin/env bash
+set -euo pipefail
 
 # Test script for en_ID locale
 # Usage: ./test_en_ID.sh [category]
@@ -36,12 +36,12 @@ run_test() {
   
   if [[ "$actual" == "$expected" ]]; then
     echo -e "${GREEN}PASSED${NC}"
-    ((TESTS_PASSED++))
+    ((TESTS_PASSED++)) || true
   else
     echo -e "${RED}FAILED${NC}"
     echo "  Expected: $expected"
     echo "  Actual:   $actual"
-    ((TESTS_FAILED++))
+    ((TESTS_FAILED++)) || true
   fi
 }
 

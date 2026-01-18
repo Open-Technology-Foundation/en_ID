@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Script to install en_ID locale and automatically set it as system default
 # For Ubuntu Desktop and Server
 # Fully automated installation with persistence
@@ -50,10 +50,10 @@ apt-get install -y -qq git make locales
 # Clone the repository to temp directory
 declare -- TEMP_DIR
 TEMP_DIR=$(mktemp -d)
+trap 'rm -rf "${TEMP_DIR:?}" || true' EXIT
 echo 'Downloading en_ID locale...'
 if ! git clone --quiet "$REPO_URL" "$TEMP_DIR"/en_ID; then
   >&2 echo -e "${RED}Failed to download en_ID repository${NC}"
-  rm -rf "${TEMP_DIR:?}"
   exit 1
 fi
 
@@ -127,9 +127,6 @@ if [[ -f /etc/ssh/sshd_config ]]; then
     SSH_CONFIG_UPDATED=1
   fi
 fi
-
-# Clean up
-rm -rf "${TEMP_DIR:?}"
 
 echo -e "${GREEN}Installation complete!${NC}"
 echo
