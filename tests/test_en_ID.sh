@@ -36,12 +36,12 @@ run_test() {
   
   if [[ "$actual" == "$expected" ]]; then
     echo -e "${GREEN}PASSED${NC}"
-    ((TESTS_PASSED++)) || true
+    TESTS_PASSED+=1
   else
     echo -e "${RED}FAILED${NC}"
     echo "  Expected: $expected"
     echo "  Actual:   $actual"
-    ((TESTS_FAILED++)) || true
+    TESTS_FAILED+=1
   fi
 }
 
