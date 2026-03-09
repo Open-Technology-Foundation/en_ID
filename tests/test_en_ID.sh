@@ -60,6 +60,14 @@ test_monetary() {
   
   # Test thousands separator
   run_test "mon_thousands_sep" "locale mon_thousands_sep" ","
+
+  # Test currency positioning and formatting details
+  run_test "p_cs_precedes" "locale p_cs_precedes" "1"
+  run_test "n_cs_precedes" "locale n_cs_precedes" "1"
+  run_test "n_sign_posn" "locale n_sign_posn" "1"
+  run_test "frac_digits" "locale frac_digits" "2"
+  run_test "int_frac_digits" "locale int_frac_digits" "2"
+  run_test "mon_grouping" "locale mon_grouping" "3"
 }
 
 test_numeric() {
@@ -154,6 +162,10 @@ test_address() {
   run_test "lang_name" "locale lang_name" "English"
   run_test "lang_ab" "locale lang_ab" "en"
   run_test "lang_term" "locale lang_term" "eng"
+  run_test "lang_lib" "locale lang_lib" "eng"
+
+  # Test postal format
+  run_test "postal_fmt" "locale postal_fmt" "%f%N%a%N%d%N%b%N%s %h %e %r%N%z %T%N%c%N"
 }
 
 test_measurement() {
