@@ -6,14 +6,19 @@ CHARMAP = UTF-8
 LOCALE_NAME = en_ID
 LOCALE_FILE = localedata/$(LOCALE_NAME)
 
-.PHONY: all install install-persistent uninstall test clean compile check
+.PHONY: all install install-persistent uninstall test clean compile check info help
 
 all: check compile
 
 # Check locale file syntax
 check:
 	@echo "Checking locale file syntax..."
-	@localedef --verbose --charmap=$(CHARMAP) --inputfile=$(LOCALE_FILE) 2>&1 | grep -E "(error|warning)" || echo "Syntax check passed"
+	@tmpdir=$$(mktemp -d) && \
+		if localedef -f $(CHARMAP) -i $(LOCALE_FILE) "$$tmpdir/$(LOCALE_NAME)" 2>&1 | grep -E "(error|warning)"; then \
+			rm -rf "$$tmpdir"; exit 1; \
+		else \
+			rm -rf "$$tmpdir"; echo "Syntax check passed"; \
+		fi
 
 # Compile locale to test
 compile:
@@ -76,7 +81,7 @@ help:
 	@echo "  check             - Check locale file syntax"
 	@echo "  compile           - Compile locale to build directory"
 	@echo "  install           - Install locale system-wide (requires sudo)"
-	@echo "  install-persistent- Install with persistence mechanisms (Debian/Ubuntu)"
+	@echo "  install-persistent - Install with persistence mechanisms (Debian/Ubuntu)"
 	@echo "  uninstall         - Remove locale from system (requires sudo)"
 	@echo "  test              - Run test suite"
 	@echo "  clean             - Remove build artifacts"

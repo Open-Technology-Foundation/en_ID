@@ -182,7 +182,7 @@ LC_ALL=en_ID.UTF-8 your-application
 ### Run Full Test Suite
 
 ```bash
-# Run all tests (39 tests across 10 categories)
+# Run all tests (47 tests across 10 categories)
 make test
 
 # Test specific categories
@@ -244,7 +244,7 @@ The en_ID locale adopts these standards from Indonesia:
 
 - **Currency**: Indonesian Rupiah (IDR/Rp) with standard positioning
 - **Country Codes**: ID (alpha-2), IDN (alpha-3), 360 (numeric), RI (vehicle registration)
-- **Telephone**: +62 country code, 001 international access, domestic format with area codes
+- **Telephone**: +62 country code, 00 international access, domestic format with area codes
 - **Address**: Indonesian postal format with full country and language metadata
 - **Paper Size**: A4 (297×210mm)
 - **Measurement**: Metric system
@@ -290,7 +290,7 @@ The locale definition uses direct UTF-8 text format instead of legacy Unicode co
 | LC_PAPER | A4 paper size (297x210mm) |
 | LC_NAME | Minimal name formatting for English contexts |
 | LC_ADDRESS | Indonesian country codes (ID, IDN, RI), English language codes |
-| LC_TELEPHONE | +62 prefix, 001 international access, domestic format |
+| LC_TELEPHONE | +62 prefix, 00 international access, domestic format |
 | LC_MEASUREMENT | Metric system |
 
 ## Building from Source

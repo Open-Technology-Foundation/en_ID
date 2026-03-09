@@ -5,6 +5,25 @@ All notable changes to the en_ID locale will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [2.1.0] - 2026-03-09
+
+### Added
+- 8 new tests for LC_MONETARY fields, `postal_fmt`, and `lang_lib` (47 total)
+
+### Changed
+- Installer scripts refactored for BCS compliance (PATH hardening, messaging functions, error handling)
+- CI workflow now tests across Ubuntu 22.04, 24.04, 26.04 (was 3 identical ubuntu-latest jobs)
+
+### Fixed
+- Makefile `check` target now properly validates locale syntax
+- Makefile `.PHONY` missing `info` and `help` targets
+- README `int_select` documentation (001 → 00)
+
+### Removed
+- Vestigial `[1.1.0] - Unreleased` CHANGELOG section
+
 ## [2.0.0] - 2024-12-13
 
 ### Added
@@ -31,31 +50,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - LC_TELEPHONE: `tel_int_fmt` formatting (removed extra semicolons)
 - Documentation/code mismatch in LC_NAME comments
 
-## [1.1.0] - Unreleased
-
-### Added
-- Persistence mechanism via `ensure-persistence.sh` script
-- `make install-persistent` target for automatic locale regeneration after system updates
-- Support for preventing locale removal during glibc/locale package updates
-- Automatic setup improvements in installation scripts
-- Package manager hooks for Debian/Ubuntu, Fedora/RHEL, and Arch Linux
-- `make uninstall`, `make info`, and `make help` targets
-- Error handling for git clone failures in installation scripts
-- Configurable repository URL via EN_ID_REPO_URL environment variable
-
-### Changed
-- Installation scripts now include persistence setup by default
-- Improved documentation for troubleshooting locale persistence issues
-- Updated README with comprehensive build and installation options
-- **Modernized locale definition to use direct UTF-8 text instead of Unicode code points**
-  - Replaced legacy `<U0041>` format with direct text like "A"
-  - Improved readability and maintainability
-  - Aligned with modern locale best practices (en_GB, en_US, etc.)
-
-### Fixed
-- Removed unused YELLOW variable from ensure-persistence.sh
-- Corrected installation script documentation to reflect automatic setup
-
 ## [1.0.0] - 2024-06-26
 
 ### Added
@@ -81,5 +75,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Compatible with GNU libc locale system
 - UTF-8 character encoding
 
+[2.1.0]: https://github.com/Open-Technology-Foundation/en_ID/releases/tag/v2.1.0
 [2.0.0]: https://github.com/Open-Technology-Foundation/en_ID/releases/tag/v2.0.0
 [1.0.0]: https://github.com/Open-Technology-Foundation/en_ID/releases/tag/v1.0.0
