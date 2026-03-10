@@ -1,89 +1,56 @@
-# Makefile for en_ID locale
+# Makefile - Install en_ID locale
+# BCS1212 compliant
 
-PREFIX ?= /usr
-LOCALEDIR = $(PREFIX)/share/i18n/locales
-CHARMAP = UTF-8
-LOCALE_NAME = en_ID
-LOCALE_FILE = localedata/$(LOCALE_NAME)
+PREFIX    ?= /usr
+LOCALEDIR ?= $(PREFIX)/share/i18n/locales
+CHARMAP   ?= UTF-8
+DESTDIR   ?=
 
-.PHONY: all install install-persistent uninstall test clean compile check info help
+.PHONY: all install uninstall check test compile clean help
 
-all: check compile
+all: help
 
-# Check locale file syntax
-check:
-	@echo "Checking locale file syntax..."
-	@tmpdir=$$(mktemp -d) && \
-		if localedef -f $(CHARMAP) -i $(LOCALE_FILE) "$$tmpdir/$(LOCALE_NAME)" 2>&1 | grep -E "(error|warning)"; then \
-			rm -rf "$$tmpdir"; exit 1; \
-		else \
-			rm -rf "$$tmpdir"; echo "Syntax check passed"; \
-		fi
-
-# Compile locale to test
-compile:
-	@echo "Compiling locale..."
-	@mkdir -p build
-	@localedef -f $(CHARMAP) -i $(LOCALE_FILE) ./build/$(LOCALE_NAME).$(CHARMAP)
-
-# Install locale system-wide
-install: check
-	@echo "Installing $(LOCALE_NAME) locale..."
-	@sudo install -D -m 644 $(LOCALE_FILE) $(LOCALEDIR)/$(LOCALE_NAME)
-	@echo "Generating locale..."
-	@sudo localedef --charmap=$(CHARMAP) --inputfile=$(LOCALEDIR)/$(LOCALE_NAME) $(LOCALE_NAME).$(CHARMAP)
-	@echo "Locale $(LOCALE_NAME).$(CHARMAP) installed successfully"
-	@echo "Run 'locale -a | grep $(LOCALE_NAME)' to verify"
-
-# Install with persistence mechanisms for Debian/Ubuntu
-install-persistent: install
-	@echo "Adding persistence mechanisms..."
-	@if [ -f /etc/locale.gen ]; then \
-		if ! grep -q "^$(LOCALE_NAME).$(CHARMAP)" /etc/locale.gen; then \
-			echo "$(LOCALE_NAME).$(CHARMAP) $(CHARMAP)" | sudo tee -a /etc/locale.gen > /dev/null; \
-			echo "Added $(LOCALE_NAME) to /etc/locale.gen"; \
-		fi; \
+install:
+	install -d $(DESTDIR)$(LOCALEDIR)
+	install -m 644 localedata/en_ID $(DESTDIR)$(LOCALEDIR)/en_ID
+	@if [ -z "$(DESTDIR)" ]; then \
+	  localedef --charmap=$(CHARMAP) --inputfile=$(LOCALEDIR)/en_ID en_ID.$(CHARMAP); \
+	  $(MAKE) --no-print-directory check; \
 	fi
-	@if [ -d /etc/apt/apt.conf.d ] && [ ! -f /etc/apt/apt.conf.d/99en-id-locale-gen ]; then \
-		echo 'DPkg::Post-Invoke { "if [ -f /etc/locale.gen ] && grep -q \"^$(LOCALE_NAME).$(CHARMAP)\" /etc/locale.gen; then locale-gen $(LOCALE_NAME).$(CHARMAP) 2>/dev/null || true; fi"; };' | sudo tee /etc/apt/apt.conf.d/99en-id-locale-gen > /dev/null; \
-		echo "Created APT hook for automatic locale regeneration"; \
-	fi
-	@echo "Persistence mechanisms installed"
 
-# Uninstall locale
 uninstall:
-	@echo "Removing $(LOCALE_NAME) locale..."
-	@sudo rm -f $(LOCALEDIR)/$(LOCALE_NAME)
-	@sudo localedef --delete-from-archive $(LOCALE_NAME).$(CHARMAP) 2>/dev/null || true
-	@echo "Locale $(LOCALE_NAME) removed"
+	rm -f $(DESTDIR)$(LOCALEDIR)/en_ID
+	@if [ -z "$(DESTDIR)" ]; then \
+	  localedef --delete-from-archive en_ID.$(CHARMAP) 2>/dev/null || true; \
+	fi
 
-# Run tests
-test: compile
-	@echo "Running locale tests..."
-	@./tests/test_en_ID.sh
+check:
+	@locale -a 2>/dev/null | grep -q en_ID \
+	  && echo 'en_ID: OK' \
+	  || echo 'en_ID: NOT FOUND (run locale -a to verify)'
 
-# Clean build artifacts
+test:
+	./tests/test_en_ID.sh
+
+compile:
+	mkdir -p build
+	localedef -f $(CHARMAP) -i localedata/en_ID ./build/en_ID.$(CHARMAP)
+
 clean:
-	@echo "Cleaning build artifacts..."
-	@rm -rf build
+	rm -rf build
 
-# Display locale info
-info:
-	@echo "Locale: $(LOCALE_NAME)"
-	@echo "Charmap: $(CHARMAP)"
-	@echo "Source: $(LOCALE_FILE)"
-	@echo "Install path: $(LOCALEDIR)/$(LOCALE_NAME)"
-
-# Help
 help:
-	@echo "Available targets:"
-	@echo "  all               - Check syntax and compile (default)"
-	@echo "  check             - Check locale file syntax"
-	@echo "  compile           - Compile locale to build directory"
-	@echo "  install           - Install locale system-wide (requires sudo)"
-	@echo "  install-persistent - Install with persistence mechanisms (Debian/Ubuntu)"
-	@echo "  uninstall         - Remove locale from system (requires sudo)"
-	@echo "  test              - Run test suite"
-	@echo "  clean             - Remove build artifacts"
-	@echo "  info              - Display locale information"
-	@echo "  help              - Show this help message"
+	@echo 'Usage: make [target]'
+	@echo ''
+	@echo 'Targets:'
+	@echo '  install     Install locale system-wide'
+	@echo '  uninstall   Remove locale from system'
+	@echo '  check       Verify locale is available'
+	@echo '  test        Run test suite'
+	@echo '  compile     Compile locale to build directory'
+	@echo '  clean       Remove build artifacts'
+	@echo '  help        Show this message'
+	@echo ''
+	@echo 'Install from GitHub:'
+	@echo '  git clone https://github.com/Open-Technology-Foundation/en_ID.git'
+	@echo '  cd en_ID && sudo make install'
