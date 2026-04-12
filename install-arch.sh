@@ -10,13 +10,15 @@ shopt -s inherit_errexit
 declare -r SCRIPT_PATH=$(realpath -- "$0")
 # shellcheck disable=SC2034 # SCRIPT_DIR reserved per BCS0103
 declare -r SCRIPT_DIR=${SCRIPT_PATH%/*} SCRIPT_NAME=${SCRIPT_PATH##*/}
+# shellcheck disable=SC2034 # VERSION reserved per BCS0103
+declare -r VERSION=2.1.0
 
 # Secure PATH for privileged execution
 declare -rx PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # Repository URL (can be overridden by environment variable)
-declare -r REPO_URL="${EN_ID_REPO_URL:-https://github.com/Open-Technology-Foundation/en_ID.git}"
-[[ "$REPO_URL" =~ ^https?:// ]] || { >&2 echo "Invalid repository URL ${REPO_URL@Q}"; exit 22; }
+declare -r REPO_URL=${EN_ID_REPO_URL:-https://github.com/Open-Technology-Foundation/en_ID.git}
+[[ $REPO_URL =~ ^https?:// ]] || { >&2 echo "Invalid repository URL ${REPO_URL@Q}"; exit 22; }
 
 # Colors for output (CYAN included per BCS0706 minimal set)
 if [[ -t 1 && -t 2 ]]; then
@@ -59,7 +61,7 @@ cleanup() {
   local -i exitcode=${1:-$?}
   trap - SIGINT SIGTERM EXIT
   # Remove temp directory
-  if [[ -n "$TEMP_DIR" ]]; then
+  if [[ -n $TEMP_DIR ]]; then
     rm -rf "$TEMP_DIR" ||:
   fi
   exit "$exitcode"
@@ -88,7 +90,7 @@ if ! git clone --quiet "$REPO_URL" "$TEMP_DIR"/en_ID; then
 fi
 
 # Change to repo directory
-cd "$TEMP_DIR"/en_ID || die 1 "Failed to enter repo directory"
+cd "$TEMP_DIR"/en_ID || die 1 'Failed to enter repo directory'
 
 # Install the locale
 info 'Installing locale files...'
@@ -123,7 +125,6 @@ fi
 info 'Setting en_ID as default locale...'
 cat > /etc/locale.conf << 'EOF'
 LANG=en_ID.UTF-8
-LC_ALL=en_ID.UTF-8
 LC_CTYPE=en_ID.UTF-8
 LC_NUMERIC=en_ID.UTF-8
 LC_TIME=en_ID.UTF-8
@@ -138,24 +139,21 @@ LC_MEASUREMENT=en_ID.UTF-8
 LC_IDENTIFICATION=en_ID.UTF-8
 EOF
 
-# Use localectl if available (systemd systems)
-if command -v localectl &>/dev/null; then
-  localectl set-locale LANG=en_ID.UTF-8 || die 1 'localectl set-locale failed'
-fi
-
 # Also update /etc/environment for some applications
-if ! grep -q 'LANG=en_ID.UTF-8' /etc/environment 2>/dev/null; then
-  echo 'LANG=en_ID.UTF-8' >> /etc/environment || die 5 'Failed to write /etc/environment'
-  echo 'LC_ALL=en_ID.UTF-8' >> /etc/environment || die 5 'Failed to write /etc/environment'
-fi
+grep -q 'LANG=en_ID.UTF-8' /etc/environment 2>/dev/null \
+  || echo 'LANG=en_ID.UTF-8' >> /etc/environment \
+  || die 5 'Failed to write /etc/environment'
+grep -q 'LC_ALL=en_ID.UTF-8' /etc/environment 2>/dev/null \
+  || echo 'LC_ALL=en_ID.UTF-8' >> /etc/environment \
+  || die 5 'Failed to write /etc/environment'
 
 # Create pacman hook directory if it doesn't exist
-if [[ ! -d "$PACMAN_HOOK_DIR" ]]; then
+if [[ ! -d $PACMAN_HOOK_DIR ]]; then
   mkdir -p "$PACMAN_HOOK_DIR" || die 5 "Failed to create hook directory ${PACMAN_HOOK_DIR@Q}"
 fi
 
 # Create pacman hook for persistence
-if [[ ! -f "$PACMAN_HOOK_FILE" ]]; then
+if [[ ! -f $PACMAN_HOOK_FILE ]]; then
   cat > "$PACMAN_HOOK_FILE" << 'EOF'
 [Trigger]
 Operation = Upgrade
