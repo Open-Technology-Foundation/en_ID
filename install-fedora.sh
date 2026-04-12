@@ -10,13 +10,15 @@ shopt -s inherit_errexit
 declare -r SCRIPT_PATH=$(realpath -- "$0")
 # shellcheck disable=SC2034 # SCRIPT_DIR reserved per BCS0103
 declare -r SCRIPT_DIR=${SCRIPT_PATH%/*} SCRIPT_NAME=${SCRIPT_PATH##*/}
+# shellcheck disable=SC2034 # VERSION reserved per BCS0103
+declare -r VERSION=2.1.0
 
 # Secure PATH for privileged execution
 declare -rx PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # Repository URL (can be overridden by environment variable)
-declare -r REPO_URL="${EN_ID_REPO_URL:-https://github.com/Open-Technology-Foundation/en_ID.git}"
-[[ "$REPO_URL" =~ ^https?:// ]] || { >&2 echo "Invalid repository URL ${REPO_URL@Q}"; exit 22; }
+declare -r REPO_URL=${EN_ID_REPO_URL:-https://github.com/Open-Technology-Foundation/en_ID.git}
+[[ $REPO_URL =~ ^https?:// ]] || { >&2 echo "Invalid repository URL ${REPO_URL@Q}"; exit 22; }
 
 # Colors for output (CYAN included per BCS0706 minimal set)
 if [[ -t 1 && -t 2 ]]; then
@@ -30,7 +32,7 @@ fi
 # Global variables
 declare -- TEMP_DIR=''
 declare -r DNF_HOOK_DIR=/etc/dnf/plugins/post-transaction-actions.d
-declare -r DNF_HOOK_FILE="$DNF_HOOK_DIR/en_id_locale.action"
+declare -r DNF_HOOK_FILE="$DNF_HOOK_DIR"/en_id_locale.action
 declare -i SSH_CONFIG_UPDATED=0
 declare -i VERBOSE=1
 
@@ -59,7 +61,7 @@ cleanup() {
   local -i exitcode=${1:-$?}
   trap - SIGINT SIGTERM EXIT
   # Remove temp directory
-  if [[ -n "$TEMP_DIR" ]]; then
+  if [[ -n $TEMP_DIR ]]; then
     rm -rf "$TEMP_DIR" ||:
   fi
   exit "$exitcode"
@@ -88,7 +90,7 @@ if ! git clone --quiet "$REPO_URL" "$TEMP_DIR"/en_ID; then
 fi
 
 # Change to repo directory
-cd "$TEMP_DIR"/en_ID || die 1 "Failed to enter repo directory"
+cd "$TEMP_DIR"/en_ID || die 1 'Failed to enter repo directory'
 
 # Install the locale
 info 'Installing locale files...'
@@ -111,7 +113,6 @@ fi
 info 'Setting en_ID as default locale...'
 cat > /etc/locale.conf << 'EOF'
 LANG=en_ID.UTF-8
-LC_ALL=en_ID.UTF-8
 LC_CTYPE=en_ID.UTF-8
 LC_NUMERIC=en_ID.UTF-8
 LC_TIME=en_ID.UTF-8
@@ -126,23 +127,26 @@ LC_MEASUREMENT=en_ID.UTF-8
 LC_IDENTIFICATION=en_ID.UTF-8
 EOF
 
-# Use localectl if available (systemd systems)
-if command -v localectl &>/dev/null; then
-  localectl set-locale LANG=en_ID.UTF-8 || die 1 'localectl set-locale failed'
-fi
-
 # Also update /etc/environment for some applications
-if ! grep -q 'LANG=en_ID.UTF-8' /etc/environment 2>/dev/null; then
-  echo 'LANG=en_ID.UTF-8' >> /etc/environment || die 5 'Failed to write /etc/environment'
-  echo 'LC_ALL=en_ID.UTF-8' >> /etc/environment || die 5 'Failed to write /etc/environment'
+grep -q 'LANG=en_ID.UTF-8' /etc/environment 2>/dev/null \
+  || echo 'LANG=en_ID.UTF-8' >> /etc/environment \
+  || die 5 'Failed to write /etc/environment'
+grep -q 'LC_ALL=en_ID.UTF-8' /etc/environment 2>/dev/null \
+  || echo 'LC_ALL=en_ID.UTF-8' >> /etc/environment \
+  || die 5 'Failed to write /etc/environment'
+
+# Install DNF post-transaction-actions plugin (required for persistence hook)
+if ! dnf install -y -q python3-dnf-plugin-post-transaction-actions 2>/dev/null; then
+  warn 'DNF post-transaction-actions plugin not available'
+  warn 'Locale may need manual regeneration after glibc updates'
 fi
 
 # Create DNF post-transaction hook for persistence
-if [[ ! -d "$DNF_HOOK_DIR" ]]; then
+if [[ ! -d $DNF_HOOK_DIR ]]; then
   mkdir -p "$DNF_HOOK_DIR" || die 5 "Failed to create hook directory ${DNF_HOOK_DIR@Q}"
 fi
 
-if [[ ! -f "$DNF_HOOK_FILE" ]]; then
+if [[ ! -f $DNF_HOOK_FILE ]]; then
   cat > "$DNF_HOOK_FILE" << 'EOF'
 # Regenerate en_ID locale after glibc updates
 glibc*:update:/usr/bin/localedef -i en_ID -f UTF-8 en_ID.UTF-8 2>/dev/null || true

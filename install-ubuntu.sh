@@ -10,13 +10,15 @@ shopt -s inherit_errexit
 declare -r SCRIPT_PATH=$(realpath -- "$0")
 # shellcheck disable=SC2034 # SCRIPT_DIR reserved per BCS0103
 declare -r SCRIPT_DIR=${SCRIPT_PATH%/*} SCRIPT_NAME=${SCRIPT_PATH##*/}
+# shellcheck disable=SC2034 # VERSION reserved per BCS0103
+declare -r VERSION=2.1.0
 
 # Secure PATH for privileged execution
 declare -rx PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # Repository URL (can be overridden by environment variable)
-declare -r REPO_URL="${EN_ID_REPO_URL:-https://github.com/Open-Technology-Foundation/en_ID.git}"
-[[ "$REPO_URL" =~ ^https?:// ]] || { >&2 echo "Invalid repository URL ${REPO_URL@Q}"; exit 22; }
+declare -r REPO_URL=${EN_ID_REPO_URL:-https://github.com/Open-Technology-Foundation/en_ID.git}
+[[ $REPO_URL =~ ^https?:// ]] || { >&2 echo "Invalid repository URL ${REPO_URL@Q}"; exit 22; }
 
 # Colors for output (CYAN included per BCS0706 minimal set)
 if [[ -t 1 && -t 2 ]]; then
@@ -59,11 +61,11 @@ cleanup() {
   local -i exitcode=${1:-$?}
   trap - SIGINT SIGTERM EXIT
   # Restore APT hook if we disabled it
-  if [[ -n "$CNF_HOOK" && -f "$CNF_HOOK".disabled ]]; then
-    mv "$CNF_HOOK".disabled "$CNF_HOOK" ||:
+  if [[ -n $CNF_HOOK && -f "$CNF_HOOK".disabled ]]; then
+    mv -- "$CNF_HOOK".disabled "$CNF_HOOK" ||:
   fi
   # Remove temp directory
-  if [[ -n "$TEMP_DIR" ]]; then
+  if [[ -n $TEMP_DIR ]]; then
     rm -rf "$TEMP_DIR" ||:
   fi
   exit "$exitcode"
@@ -83,16 +85,16 @@ info "${GREEN}Installing en_ID locale as system default...$NC"
 info 'Updating package lists...'
 # Disable cnf-update-db APT hook temporarily — it can cause apt-get update failures
 for conf in /etc/apt/apt.conf.d/*; do
-  [[ -f "$conf" ]] || continue
+  [[ -f $conf ]] || continue
   if grep -q 'cnf-update-db' "$conf" 2>/dev/null; then
     CNF_HOOK=$conf
     break
   fi
 done
-if [[ -n "$CNF_HOOK" ]]; then
-  mv "$CNF_HOOK" "$CNF_HOOK".disabled || die 1 "Failed to disable APT hook ${CNF_HOOK@Q}"
+if [[ -n $CNF_HOOK ]]; then
+  mv -- "$CNF_HOOK" "$CNF_HOOK".disabled || die 1 "Failed to disable APT hook ${CNF_HOOK@Q}"
   apt-get update -qq || die 1 'apt-get update failed'
-  mv "$CNF_HOOK".disabled "$CNF_HOOK" || die 1 "Failed to restore APT hook ${CNF_HOOK@Q}"
+  mv -- "$CNF_HOOK".disabled "$CNF_HOOK" || die 1 "Failed to restore APT hook ${CNF_HOOK@Q}"
 else
   apt-get update -qq || die 1 'apt-get update failed'
 fi
@@ -109,7 +111,7 @@ if ! git clone --quiet "$REPO_URL" "$TEMP_DIR"/en_ID; then
 fi
 
 # Change to repo directory
-cd "$TEMP_DIR"/en_ID || die 1 "Failed to enter repo directory"
+cd "$TEMP_DIR"/en_ID || die 1 'Failed to enter repo directory'
 
 # Install the locale
 info 'Installing locale files...'
@@ -147,10 +149,12 @@ update-locale LANG=en_ID.UTF-8 \
   || die 1 'update-locale failed'
 
 # Also set locale in /etc/environment for apps that don't read /etc/default/locale
-if ! grep -q 'LANG=en_ID.UTF-8' /etc/environment; then
-  echo 'LANG=en_ID.UTF-8' >> /etc/environment || die 5 'Failed to write /etc/environment'
-  echo 'LC_ALL=en_ID.UTF-8' >> /etc/environment || die 5 'Failed to write /etc/environment'
-fi
+grep -q 'LANG=en_ID.UTF-8' /etc/environment \
+  || echo 'LANG=en_ID.UTF-8' >> /etc/environment \
+  || die 5 'Failed to write /etc/environment'
+grep -q 'LC_ALL=en_ID.UTF-8' /etc/environment \
+  || echo 'LC_ALL=en_ID.UTF-8' >> /etc/environment \
+  || die 5 'Failed to write /etc/environment'
 
 # Add to locale.gen for persistence across system updates
 if [[ -f /etc/locale.gen ]]; then
@@ -161,7 +165,7 @@ if [[ -f /etc/locale.gen ]]; then
 fi
 
 # Create APT hook to regenerate locale after package updates
-if [[ ! -f "$APT_HOOK_FILE" ]]; then
+if [[ ! -f $APT_HOOK_FILE ]]; then
   cat > "$APT_HOOK_FILE" << 'EOF'
 // Automatically regenerate en_ID locale after package updates
 DPkg::Post-Invoke { "if [ -f /etc/locale.gen ] && grep -q '^en_ID.UTF-8' /etc/locale.gen; then locale-gen en_ID.UTF-8 2>/dev/null || true; fi"; };

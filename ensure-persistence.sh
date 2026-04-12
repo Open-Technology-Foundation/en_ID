@@ -66,16 +66,16 @@ fi
 # Detect distribution
 if [[ -f /etc/os-release ]]; then
   . /etc/os-release
-  if [[ "$ID" == ubuntu ]] || [[ "$ID" == debian ]] || [[ "${ID_LIKE:-}" == *debian* ]]; then
+  if [[ $ID == ubuntu ]] || [[ $ID == debian ]] || [[ ${ID_LIKE:-} == *debian* ]]; then
     DISTRO=debian
-  elif [[ "$ID" == fedora ]] || [[ "$ID" == rhel ]] || [[ "$ID" == centos ]] || [[ "${ID_LIKE:-}" == *rhel* ]] || [[ "${ID_LIKE:-}" == *fedora* ]]; then
+  elif [[ $ID == fedora ]] || [[ $ID == rhel ]] || [[ $ID == centos ]] || [[ "${ID_LIKE:-}" == *rhel* ]] || [[ ${ID_LIKE:-} == *fedora* ]]; then
     DISTRO=fedora
-  elif [[ "$ID" == arch ]] || [[ "${ID_LIKE:-}" == *arch* ]]; then
+  elif [[ $ID == arch ]] || [[ ${ID_LIKE:-} == *arch* ]]; then
     DISTRO=arch
   fi
 fi
 
-if [[ -z "$DISTRO" ]]; then
+if [[ -z $DISTRO ]]; then
   die 1 'Unable to detect distribution'
 fi
 
@@ -88,7 +88,7 @@ if [[ ! -f /usr/share/i18n/locales/en_ID ]]; then
 fi
 
 # Debian/Ubuntu specific persistence
-if [[ "$DISTRO" == debian ]]; then
+if [[ $DISTRO == debian ]]; then
   info 'Setting up Debian/Ubuntu persistence mechanisms...'
 
   # Add to locale.gen
@@ -105,7 +105,7 @@ if [[ "$DISTRO" == debian ]]; then
 
   # Create APT hook
   declare -r APT_HOOK_FILE=/etc/apt/apt.conf.d/99en-id-locale-gen
-  if [[ ! -f "$APT_HOOK_FILE" ]]; then
+  if [[ ! -f $APT_HOOK_FILE ]]; then
     cat > "$APT_HOOK_FILE" << 'EOF' || die 5 "Failed to create APT hook ${APT_HOOK_FILE@Q}"
 // Automatically regenerate en_ID locale after package updates
 DPkg::Post-Invoke { "if [ -f /etc/locale.gen ] && grep -q '^en_ID.UTF-8' /etc/locale.gen; then locale-gen en_ID.UTF-8 2>/dev/null || true; fi"; };
@@ -123,19 +123,19 @@ EOF
   fi
 
 # Fedora/RHEL specific persistence
-elif [[ "$DISTRO" == fedora ]]; then
+elif [[ $DISTRO == fedora ]]; then
   info 'Setting up Fedora/RHEL persistence mechanisms...'
 
   # Create DNF post-transaction hook
   declare -r DNF_HOOK_DIR=/etc/dnf/plugins/post-transaction-actions.d
-  declare -r DNF_HOOK_FILE="$DNF_HOOK_DIR/en_id_locale.action"
+  declare -r DNF_HOOK_FILE="$DNF_HOOK_DIR"/en_id_locale.action
 
-  if [[ ! -d "$DNF_HOOK_DIR" ]]; then
+  if [[ ! -d $DNF_HOOK_DIR ]]; then
     mkdir -p "$DNF_HOOK_DIR" \
       || die 5 "Failed to create hook directory ${DNF_HOOK_DIR@Q}"
   fi
 
-  if [[ ! -f "$DNF_HOOK_FILE" ]]; then
+  if [[ ! -f $DNF_HOOK_FILE ]]; then
     cat > "$DNF_HOOK_FILE" << 'EOF' || die 5 "Failed to create DNF hook ${DNF_HOOK_FILE@Q}"
 # Regenerate en_ID locale after glibc updates
 glibc*:update:/usr/bin/localedef -i en_ID -f UTF-8 en_ID.UTF-8 2>/dev/null || true
@@ -153,7 +153,7 @@ EOF
   localedef -i en_ID -f UTF-8 en_ID.UTF-8 || die 1 'localedef failed'
 
 # Arch Linux specific persistence
-elif [[ "$DISTRO" == arch ]]; then
+elif [[ $DISTRO == arch ]]; then
   info 'Setting up Arch Linux persistence mechanisms...'
 
   # Add to locale.gen
@@ -170,14 +170,14 @@ elif [[ "$DISTRO" == arch ]]; then
 
   # Create pacman hook
   declare -r PACMAN_HOOK_DIR=/etc/pacman.d/hooks
-  declare -r PACMAN_HOOK_FILE="$PACMAN_HOOK_DIR/en_id_locale.hook"
+  declare -r PACMAN_HOOK_FILE="$PACMAN_HOOK_DIR"/en_id_locale.hook
 
-  if [[ ! -d "$PACMAN_HOOK_DIR" ]]; then
+  if [[ ! -d $PACMAN_HOOK_DIR ]]; then
     mkdir -p "$PACMAN_HOOK_DIR" \
       || die 5 "Failed to create hook directory ${PACMAN_HOOK_DIR@Q}"
   fi
 
-  if [[ ! -f "$PACMAN_HOOK_FILE" ]]; then
+  if [[ ! -f $PACMAN_HOOK_FILE ]]; then
     cat > "$PACMAN_HOOK_FILE" << 'EOF' || die 5 "Failed to create Pacman hook ${PACMAN_HOOK_FILE@Q}"
 [Trigger]
 Operation = Upgrade
