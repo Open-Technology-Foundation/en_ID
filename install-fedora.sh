@@ -11,7 +11,7 @@ declare -r SCRIPT_PATH=$(realpath -- "$0")
 # shellcheck disable=SC2034 # SCRIPT_DIR reserved per BCS0103
 declare -r SCRIPT_DIR=${SCRIPT_PATH%/*} SCRIPT_NAME=${SCRIPT_PATH##*/}
 # shellcheck disable=SC2034 # VERSION reserved per BCS0103
-declare -r VERSION=2.2.0
+declare -r VERSION=2.2.1
 
 # Secure PATH for privileged execution
 declare -rx PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin

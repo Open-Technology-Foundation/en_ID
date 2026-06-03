@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.1] - 2026-06-03
+
+### Fixed
+- `make uninstall` now deregisters the compiled locale from the glibc archive. It previously deleted only `en_ID.UTF-8`, but the archive entry is normalised to `en_ID.utf8`, so the delete matched nothing and left `en_ID` in `locale -a`; it now also removes the normalised name.
+
 ## [2.2.0] - 2026-06-03
 
 ### Added
@@ -98,6 +103,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Compatible with GNU libc locale system
 - UTF-8 character encoding
 
+[2.2.1]: https://github.com/Open-Technology-Foundation/en_ID/releases/tag/v2.2.1
 [2.2.0]: https://github.com/Open-Technology-Foundation/en_ID/releases/tag/v2.2.0
 [2.1.0]: https://github.com/Open-Technology-Foundation/en_ID/releases/tag/v2.1.0
 [2.0.0]: https://github.com/Open-Technology-Foundation/en_ID/releases/tag/v2.0.0
