@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Makefile `info` (display locale metadata) and `install-persistent` (install + run `ensure-persistence.sh`) targets.
+
 ### Fixed
 - Restored 8 LC_MONETARY / `postal_fmt` / `lang_lib` tests inadvertently dropped after v2.1.0 (test suite back to 47).
 - Installers no longer set a system-wide `LC_ALL` override; they set `LANG` plus per-category `LC_*` so individual category settings are honoured.
@@ -21,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI drops the redundant "Check locale syntax" step; `make compile` validates the locale definition's syntax, and `make check` is a post-install availability gate.
 - CI installs the locale for real (`sudo make install`) and re-runs the suite in system-locale mode, exercising the install path and the post-install `check` gate end-to-end (was a `make -n install` dry run).
 - Installers exit `13` (EACCES) instead of `1` when not run as root, matching the project's errno-style exit codes.
+- Bare `make` now compiles to `build/` (previously printed help; use `make help` for the target list).
+- README: corrected the 12-hour (`02:30:45 PM`), datetime weekday (`Mon 2024-01-15`), and `printf` grouping (`LC_NUMERIC`, not `LC_MONETARY`) examples, and replaced stale system-wide `LC_ALL` guidance with `LANG` + per-category `LC_*` to match the installers.
 
 ## [2.1.0] - 2026-03-09
 

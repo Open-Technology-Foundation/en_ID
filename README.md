@@ -37,7 +37,7 @@ The `en_ID` locale provides English language support tailored for Indonesia. It 
 | **Numbers** | Decimal point, comma separator | 1,234,567.89 |
 | **Date** | ISO 8601 format | 2024-01-15 |
 | **DateTime** | ISO with weekday | Mon 2024-01-15 14:30:45 |
-| **Time** | 24-hour default, 12-hour available | 14:30:45 / 2:30:45 PM |
+| **Time** | 24-hour default, 12-hour available | 14:30:45 / 02:30:45 PM |
 | **Week** | ISO 8601 numbering, Monday start | Week 1 contains first Thursday |
 | **Paper** | A4 (297×210mm) | - |
 | **Measurement** | Metric | - |
@@ -87,7 +87,7 @@ The installation scripts provide a fully automated setup that:
 - Sets up persistence mechanisms to prevent removal during system updates
 - Includes error handling for network and installation issues
 
-The scripts automatically configure all locale categories (LC_ALL, LC_CTYPE, LC_NUMERIC, etc.) for comprehensive system-wide support. The repository URL can be customized by setting the `EN_ID_REPO_URL` environment variable.
+The scripts set `LANG` plus the per-category variables (`LC_CTYPE`, `LC_NUMERIC`, `LC_TIME`, etc.) for comprehensive system-wide support, without a system-wide `LC_ALL` override. The repository URL can be customized by setting the `EN_ID_REPO_URL` environment variable.
 
 ### Manual Installation
 
@@ -155,7 +155,7 @@ echo "LANG=en_ID.UTF-8" | sudo tee /etc/locale.conf
 ### Set as System Default
 ```bash
 # Ubuntu/Debian
-sudo update-locale LANG=en_ID.UTF-8 LC_ALL=en_ID.UTF-8
+sudo update-locale LANG=en_ID.UTF-8
 
 # Fedora/RHEL
 sudo localectl set-locale LANG=en_ID.UTF-8
@@ -175,7 +175,7 @@ export LC_ALL=en_ID.UTF-8
 LC_ALL=en_ID.UTF-8 your-application
 ```
 
-**Important**: Use `LC_ALL` to ensure all locale categories use en_ID. Using only `LANG` may result in some categories falling back to system defaults.
+**Important**: `LC_ALL` is best reserved for transient, per-command use (as above) — set persistently system-wide it overrides *every* per-category variable. For a lasting default, set `LANG` (plus any specific `LC_*` categories you need), which is what the installers do.
 
 ## Testing
 
@@ -190,9 +190,12 @@ make test
 ./tests/test_en_ID.sh LC_TIME_EXT    # Extended: week, am_pm, datetime
 ./tests/test_en_ID.sh LC_MONETARY
 ./tests/test_en_ID.sh LC_NUMERIC
+./tests/test_en_ID.sh LC_MESSAGES
+./tests/test_en_ID.sh LC_PAPER
 ./tests/test_en_ID.sh LC_ADDRESS
 ./tests/test_en_ID.sh LC_TELEPHONE
 ./tests/test_en_ID.sh LC_NAME
+./tests/test_en_ID.sh LC_MEASUREMENT
 ```
 
 ### Manual Verification
@@ -204,7 +207,7 @@ locale -a | grep en_ID
 # Test date format (should show: 2024-01-15)
 LC_ALL=en_ID.UTF-8 date +%x
 
-# Test datetime format (should show: Fri 2024-01-15 14:30:45)
+# Test datetime format (should show: Mon 2024-01-15 14:30:45)
 LC_ALL=en_ID.UTF-8 date -d "2024-01-15 14:30:45" +%c
 
 # Test time format (should show: 14:30:45)
@@ -213,8 +216,8 @@ LC_ALL=en_ID.UTF-8 date +%X
 # Test 12-hour format (should show: 02:30:45 PM)
 LC_ALL=en_ID.UTF-8 date -d "14:30:45" +%r
 
-# Test currency (number formatting)
-LC_MONETARY=en_ID.UTF-8 printf "%'.2f\n" 1234567.89
+# Test number formatting (thousands grouping; driven by LC_NUMERIC)
+LC_NUMERIC=en_ID.UTF-8 printf "%'.2f\n" 1234567.89
 # Output: 1,234,567.89
 
 # Test full date with day name
