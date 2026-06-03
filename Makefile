@@ -6,9 +6,9 @@ LOCALEDIR ?= $(PREFIX)/share/i18n/locales
 CHARMAP   ?= UTF-8
 DESTDIR   ?=
 
-.PHONY: all install uninstall check test compile clean help
+.PHONY: all install install-persistent uninstall check test compile clean info help
 
-all: help
+all: compile
 
 install:
 	install -d $(DESTDIR)$(LOCALEDIR)
@@ -17,6 +17,9 @@ install:
 	  localedef --charmap=$(CHARMAP) --inputfile=$(LOCALEDIR)/en_ID en_ID.$(CHARMAP); \
 	  $(MAKE) --no-print-directory check; \
 	fi
+
+install-persistent: install
+	@./ensure-persistence.sh
 
 uninstall:
 	rm -f $(DESTDIR)$(LOCALEDIR)/en_ID
@@ -42,17 +45,25 @@ compile:
 clean:
 	rm -rf build
 
+info:
+	@echo 'en_ID locale information:'
+	@grep -E '^(title|language|territory|revision|date)[[:space:]]' localedata/en_ID
+	@echo 'charmap: $(CHARMAP)'
+
 help:
 	@echo 'Usage: make [target]'
 	@echo ''
 	@echo 'Targets:'
-	@echo '  install     Install locale system-wide'
-	@echo '  uninstall   Remove locale from system'
-	@echo '  check       Verify locale is available'
-	@echo '  test        Run test suite'
-	@echo '  compile     Compile locale to build directory'
-	@echo '  clean       Remove build artifacts'
-	@echo '  help        Show this message'
+	@echo '  (default)            Compile locale to build directory'
+	@echo '  compile              Compile locale to build directory'
+	@echo '  install              Install locale system-wide'
+	@echo '  install-persistent   Install + persistence across system updates'
+	@echo '  uninstall            Remove locale from system'
+	@echo '  check                Verify locale is available'
+	@echo '  test                 Run test suite'
+	@echo '  info                 Display locale information'
+	@echo '  clean                Remove build artifacts'
+	@echo '  help                 Show this message'
 	@echo ''
 	@echo 'Install from GitHub:'
 	@echo '  git clone https://github.com/Open-Technology-Foundation/en_ID.git'
