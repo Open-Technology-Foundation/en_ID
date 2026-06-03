@@ -10,11 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Restored 8 LC_MONETARY / `postal_fmt` / `lang_lib` tests inadvertently dropped after v2.1.0 (test suite back to 47).
 - Installers no longer set a system-wide `LC_ALL` override; they set `LANG` plus per-category `LC_*` so individual category settings are honoured.
+- `make check` now exits non-zero when en_ID is absent (was always exit 0, so it could never fail a build or gate `make install`).
+- Installers no longer overwrite an existing locale backup on re-run, preserving the original pre-en_ID configuration.
 
 ### Changed
 - Test suite now verifies formatted date/time/number output in CI via `LOCPATH` against `build/` (previously gated behind `USE_SYSTEM_LOCALE` and skipped in build-only CI).
 - `make test` now depends on `compile`.
 - CI matrix drops `ubuntu-26.04` (no reliable hosted runner — jobs queue until the 24h auto-cancel); tests run on `ubuntu-22.04` and `ubuntu-24.04`.
+- CI drops the redundant "Check locale syntax" step; `make compile` validates the locale definition's syntax, and `make check` is a post-install availability gate.
 
 ## [2.1.0] - 2026-03-09
 

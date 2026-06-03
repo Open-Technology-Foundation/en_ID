@@ -31,9 +31,6 @@ jobs:
         echo "Available locales:"
         locale -a | grep -E "(en_GB|en_SG)" || true
     
-    - name: Check locale syntax
-      run: make check
-    
     - name: Compile locale
       run: make compile
     
