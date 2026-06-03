@@ -13,8 +13,8 @@ tel         "+62213901007"
 fax         ""
 language    "English"
 territory   "Indonesia"
-revision    "2.1"
-date        "2026-03-09"
+revision    "2.2"
+date        "2026-06-03"
 %
 category "i18n:2012";LC_IDENTIFICATION
 category "i18n:2012";LC_CTYPE

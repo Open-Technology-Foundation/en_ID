@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-06-03
+
 ### Added
 - Makefile `info` (display locale metadata) and `install-persistent` (install + run `ensure-persistence.sh`) targets.
 
@@ -26,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Installers exit `13` (EACCES) instead of `1` when not run as root, matching the project's errno-style exit codes.
 - Bare `make` now compiles to `build/` (previously printed help; use `make help` for the target list).
 - README: corrected the 12-hour (`02:30:45 PM`), datetime weekday (`Mon 2024-01-15`), and `printf` grouping (`LC_NUMERIC`, not `LC_MONETARY`) examples, and replaced stale system-wide `LC_ALL` guidance with `LANG` + per-category `LC_*` to match the installers.
+- Locale revision bumped to 2.2 (LC_IDENTIFICATION metadata only; the locale definition is unchanged from 2.1).
 
 ## [2.1.0] - 2026-03-09
 
@@ -95,6 +98,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Compatible with GNU libc locale system
 - UTF-8 character encoding
 
+[2.2.0]: https://github.com/Open-Technology-Foundation/en_ID/releases/tag/v2.2.0
 [2.1.0]: https://github.com/Open-Technology-Foundation/en_ID/releases/tag/v2.1.0
 [2.0.0]: https://github.com/Open-Technology-Foundation/en_ID/releases/tag/v2.0.0
 [1.0.0]: https://github.com/Open-Technology-Foundation/en_ID/releases/tag/v1.0.0
