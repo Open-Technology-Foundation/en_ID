@@ -79,8 +79,11 @@ test_numeric() {
   # Test thousands separator
   run_test "thousands_sep" "locale thousands_sep" ","
   
-  # Test number formatting (grouped thousands)
-  run_test "number format" "printf %\'d 1234567" "1,234,567"
+  # Test number formatting (grouped thousands).
+  # Use external printf: the bash builtin formats with the shell's startup
+  # locale and ignores the transient LOCPATH used to load the build/ locale,
+  # so the builtin would skip grouping in build-only CI.
+  run_test "number format" "env printf %\'d 1234567" "1,234,567"
 }
 
 test_time() {
