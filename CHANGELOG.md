@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI matrix drops `ubuntu-26.04` (no reliable hosted runner — jobs queue until the 24h auto-cancel); tests run on `ubuntu-22.04` and `ubuntu-24.04`.
 - CI drops the redundant "Check locale syntax" step; `make compile` validates the locale definition's syntax, and `make check` is a post-install availability gate.
 - CI installs the locale for real (`sudo make install`) and re-runs the suite in system-locale mode, exercising the install path and the post-install `check` gate end-to-end (was a `make -n install` dry run).
+- Installers exit `13` (EACCES) instead of `1` when not run as root, matching the project's errno-style exit codes.
 
 ## [2.1.0] - 2026-03-09
 

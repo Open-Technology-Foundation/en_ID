@@ -76,7 +76,7 @@ trap 'cleanup $?' SIGINT SIGTERM EXIT
 
 # Check if running as root
 if ((EUID)); then
-  die 1 'This script must be run as root or with sudo'
+  die 13 'This script must be run as root or with sudo'
 fi
 
 info "${GREEN}Installing en_ID locale as system default...$NC"
