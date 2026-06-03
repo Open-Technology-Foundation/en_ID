@@ -25,9 +25,12 @@ uninstall:
 	fi
 
 check:
-	@locale -a 2>/dev/null | grep -q en_ID \
-	  && echo 'en_ID: OK' \
-	  || echo 'en_ID: NOT FOUND (run locale -a to verify)'
+	@if locale -a 2>/dev/null | grep -q en_ID; then \
+	  echo 'en_ID: OK'; \
+	else \
+	  echo 'en_ID: NOT FOUND (run "locale -a" to verify)' >&2; \
+	  exit 1; \
+	fi
 
 test: compile
 	./tests/test_en_ID.sh

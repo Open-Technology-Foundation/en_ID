@@ -124,10 +124,12 @@ fi
 
 info "${GREEN}en_ID locale installed successfully$NC"
 
-# Backup current locale settings
-if [[ -f /etc/default/locale ]]; then
+# Backup current locale settings (preserve original backup on re-run)
+if [[ -f /etc/default/locale && ! -f /etc/default/locale.backup ]]; then
   cp /etc/default/locale /etc/default/locale.backup || die 5 'Failed to backup locale settings'
   info 'Backed up current locale settings to /etc/default/locale.backup'
+elif [[ -f /etc/default/locale.backup ]]; then
+  info 'Existing backup /etc/default/locale.backup preserved'
 fi
 
 # Set en_ID as default locale
