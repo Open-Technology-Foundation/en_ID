@@ -25,6 +25,7 @@ uninstall:
 	rm -f $(DESTDIR)$(LOCALEDIR)/en_ID
 	@if [ -z "$(DESTDIR)" ]; then \
 	  localedef --delete-from-archive en_ID.$(CHARMAP) 2>/dev/null || true; \
+	  localedef --delete-from-archive en_ID.utf8 2>/dev/null || true; \
 	fi
 
 check:
