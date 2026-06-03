@@ -150,13 +150,13 @@ update-locale LANG=en_ID.UTF-8 \
   || die 1 'update-locale failed'
 
 # Also set locale in /etc/environment for apps that don't read /etc/default/locale
-grep -q 'LANG=en_ID.UTF-8' /etc/environment \
+grep -qxF 'LANG=en_ID.UTF-8' /etc/environment \
   || echo 'LANG=en_ID.UTF-8' >> /etc/environment \
   || die 5 'Failed to write /etc/environment'
 
 # Add to locale.gen for persistence across system updates
 if [[ -f /etc/locale.gen ]]; then
-  if ! grep -q '^en_ID.UTF-8' /etc/locale.gen; then
+  if ! grep -qxF 'en_ID.UTF-8 UTF-8' /etc/locale.gen; then
     echo 'en_ID.UTF-8 UTF-8' >> /etc/locale.gen || die 5 'Failed to write /etc/locale.gen'
     info 'Added en_ID to /etc/locale.gen for persistence'
   fi

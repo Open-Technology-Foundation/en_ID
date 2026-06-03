@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Installers no longer set a system-wide `LC_ALL` override; they set `LANG` plus per-category `LC_*` so individual category settings are honoured.
 - `make check` now exits non-zero when en_ID is absent (was always exit 0, so it could never fail a build or gate `make install`).
 - Installers no longer overwrite an existing locale backup on re-run, preserving the original pre-en_ID configuration.
+- Installer `/etc/environment` and `/etc/locale.gen` idempotency checks use `grep -qxF` (fixed-string, whole-line) instead of a substring regex, so a commented or partial line no longer falsely suppresses the real append.
 
 ### Changed
 - Test suite now verifies formatted date/time/number output in CI via `LOCPATH` against `build/` (previously gated behind `USE_SYSTEM_LOCALE` and skipped in build-only CI).
