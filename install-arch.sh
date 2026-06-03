@@ -98,7 +98,7 @@ make install || die 1 'make install failed'
 
 # Add to locale.gen if not already present
 if [[ -f /etc/locale.gen ]]; then
-  if ! grep -q '^en_ID.UTF-8' /etc/locale.gen; then
+  if ! grep -qxF 'en_ID.UTF-8 UTF-8' /etc/locale.gen; then
     echo 'en_ID.UTF-8 UTF-8' >> /etc/locale.gen || die 5 'Failed to write /etc/locale.gen'
     info 'Added en_ID to /etc/locale.gen'
   fi
@@ -142,7 +142,7 @@ LC_IDENTIFICATION=en_ID.UTF-8
 EOF
 
 # Also update /etc/environment for some applications
-grep -q 'LANG=en_ID.UTF-8' /etc/environment 2>/dev/null \
+grep -qxF 'LANG=en_ID.UTF-8' /etc/environment 2>/dev/null \
   || echo 'LANG=en_ID.UTF-8' >> /etc/environment \
   || die 5 'Failed to write /etc/environment'
 

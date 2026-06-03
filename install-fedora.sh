@@ -130,7 +130,7 @@ LC_IDENTIFICATION=en_ID.UTF-8
 EOF
 
 # Also update /etc/environment for some applications
-grep -q 'LANG=en_ID.UTF-8' /etc/environment 2>/dev/null \
+grep -qxF 'LANG=en_ID.UTF-8' /etc/environment 2>/dev/null \
   || echo 'LANG=en_ID.UTF-8' >> /etc/environment \
   || die 5 'Failed to write /etc/environment'
 
