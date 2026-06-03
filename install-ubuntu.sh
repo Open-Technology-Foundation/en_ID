@@ -133,7 +133,6 @@ fi
 # Set en_ID as default locale
 info 'Setting en_ID as default locale...'
 update-locale LANG=en_ID.UTF-8 \
-              LC_ALL=en_ID.UTF-8 \
               LC_CTYPE=en_ID.UTF-8 \
               LC_NUMERIC=en_ID.UTF-8 \
               LC_TIME=en_ID.UTF-8 \
@@ -151,9 +150,6 @@ update-locale LANG=en_ID.UTF-8 \
 # Also set locale in /etc/environment for apps that don't read /etc/default/locale
 grep -q 'LANG=en_ID.UTF-8' /etc/environment \
   || echo 'LANG=en_ID.UTF-8' >> /etc/environment \
-  || die 5 'Failed to write /etc/environment'
-grep -q 'LC_ALL=en_ID.UTF-8' /etc/environment \
-  || echo 'LC_ALL=en_ID.UTF-8' >> /etc/environment \
   || die 5 'Failed to write /etc/environment'
 
 # Add to locale.gen for persistence across system updates

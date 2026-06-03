@@ -131,9 +131,6 @@ EOF
 grep -q 'LANG=en_ID.UTF-8' /etc/environment 2>/dev/null \
   || echo 'LANG=en_ID.UTF-8' >> /etc/environment \
   || die 5 'Failed to write /etc/environment'
-grep -q 'LC_ALL=en_ID.UTF-8' /etc/environment 2>/dev/null \
-  || echo 'LC_ALL=en_ID.UTF-8' >> /etc/environment \
-  || die 5 'Failed to write /etc/environment'
 
 # Install DNF post-transaction-actions plugin (required for persistence hook)
 if ! dnf install -y -q python3-dnf-plugin-post-transaction-actions 2>/dev/null; then

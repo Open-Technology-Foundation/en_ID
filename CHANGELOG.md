@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Restored 8 LC_MONETARY / `postal_fmt` / `lang_lib` tests inadvertently dropped after v2.1.0 (test suite back to 47).
+- Installers no longer set a system-wide `LC_ALL` override; they set `LANG` plus per-category `LC_*` so individual category settings are honoured.
+
+### Changed
+- Test suite now verifies formatted date/time/number output in CI via `LOCPATH` against `build/` (previously gated behind `USE_SYSTEM_LOCALE` and skipped in build-only CI).
+- `make test` now depends on `compile`.
+
 ## [2.1.0] - 2026-03-09
 
 ### Added

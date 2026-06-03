@@ -143,9 +143,6 @@ EOF
 grep -q 'LANG=en_ID.UTF-8' /etc/environment 2>/dev/null \
   || echo 'LANG=en_ID.UTF-8' >> /etc/environment \
   || die 5 'Failed to write /etc/environment'
-grep -q 'LC_ALL=en_ID.UTF-8' /etc/environment 2>/dev/null \
-  || echo 'LC_ALL=en_ID.UTF-8' >> /etc/environment \
-  || die 5 'Failed to write /etc/environment'
 
 # Create pacman hook directory if it doesn't exist
 if [[ ! -d $PACMAN_HOOK_DIR ]]; then
