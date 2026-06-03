@@ -60,6 +60,14 @@ test_monetary() {
   
   # Test thousands separator
   run_test "mon_thousands_sep" "locale mon_thousands_sep" ","
+
+  # Test currency positioning and precision (restored after v2.1.0)
+  run_test 'p_cs_precedes' 'locale p_cs_precedes' 1
+  run_test 'n_cs_precedes' 'locale n_cs_precedes' 1
+  run_test 'n_sign_posn' 'locale n_sign_posn' 1
+  run_test 'frac_digits' 'locale frac_digits' 2
+  run_test 'int_frac_digits' 'locale int_frac_digits' 2
+  run_test 'mon_grouping' 'locale mon_grouping' 3
 }
 
 test_numeric() {
@@ -71,39 +79,30 @@ test_numeric() {
   # Test thousands separator
   run_test "thousands_sep" "locale thousands_sep" ","
   
-  # Test number formatting - skip in build environment as printf needs system locale
-  if [[ "${USE_SYSTEM_LOCALE:-false}" == "true" ]]; then
-    run_test "number format" "printf %\'d 1234567" "1,234,567"
-  else
-    echo "  Note: Number formatting test requires system locale installation"
-  fi
+  # Test number formatting (grouped thousands)
+  run_test "number format" "printf %\'d 1234567" "1,234,567"
 }
 
 test_time() {
   echo -e "\n${YELLOW}Testing LC_TIME${NC}"
   
-  if [[ "${USE_SYSTEM_LOCALE:-false}" == "true" ]]; then
-    # Test date format
-    run_test "date format" "date -d '2024-01-15' +%x" "2024-01-15"
-    
-    # Test time format (24-hour)
-    run_test "time format" "date -d '2024-01-15 14:30:45' +%X" "14:30:45"
-    
-    # Test day/month names through date command
-    run_test "abbreviated Sunday" "date -d '2024-01-07' +%a" "Sun"
-    run_test "abbreviated Monday" "date -d '2024-01-08' +%a" "Mon"
-    
-    # Test full day names
-    run_test "full Sunday" "date -d '2024-01-07' +%A" "Sunday"
-    run_test "full Monday" "date -d '2024-01-08' +%A" "Monday"
-    
-    # Test month names
-    run_test "abbreviated January" "date -d '2024-01-15' +%b" "Jan"
-    run_test "full January" "date -d '2024-01-15' +%B" "January"
-  else
-    echo "  Note: Time format tests require system locale installation"
-    echo "  Skipping date/time formatting tests in build environment"
-  fi
+  # Test date format
+  run_test "date format" "date -d '2024-01-15' +%x" "2024-01-15"
+
+  # Test time format (24-hour)
+  run_test "time format" "date -d '2024-01-15 14:30:45' +%X" "14:30:45"
+
+  # Test day/month names through date command
+  run_test "abbreviated Sunday" "date -d '2024-01-07' +%a" "Sun"
+  run_test "abbreviated Monday" "date -d '2024-01-08' +%a" "Mon"
+
+  # Test full day names
+  run_test "full Sunday" "date -d '2024-01-07' +%A" "Sunday"
+  run_test "full Monday" "date -d '2024-01-08' +%A" "Monday"
+
+  # Test month names
+  run_test "abbreviated January" "date -d '2024-01-15' +%b" "Jan"
+  run_test "full January" "date -d '2024-01-15' +%B" "January"
 }
 
 test_messages() {
@@ -154,6 +153,10 @@ test_address() {
   run_test "lang_name" "locale lang_name" "English"
   run_test "lang_ab" "locale lang_ab" "en"
   run_test "lang_term" "locale lang_term" "eng"
+
+  # Library code and postal format (restored after v2.1.0)
+  run_test lang_lib 'locale lang_lib' eng
+  run_test postal_fmt 'locale postal_fmt' '%f%N%a%N%d%N%b%N%s %h %e %r%N%z %T%N%c%N'
 }
 
 test_measurement() {
@@ -181,9 +184,7 @@ test_time_extended() {
   run_test "t_fmt_ampm" "locale t_fmt_ampm" "%I:%M:%S %p"
 
   # Test combined datetime format (ISO-aligned)
-  if [[ "${USE_SYSTEM_LOCALE:-false}" == "true" ]]; then
-    run_test "datetime format" "date -d '2024-01-15 14:30:45' +%c" "Mon 2024-01-15 14:30:45"
-  fi
+  run_test "datetime format" "date -d '2024-01-15 14:30:45' +%c" "Mon 2024-01-15 14:30:45"
 }
 
 # Main execution

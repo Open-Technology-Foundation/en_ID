@@ -29,7 +29,7 @@ check:
 	  && echo 'en_ID: OK' \
 	  || echo 'en_ID: NOT FOUND (run locale -a to verify)'
 
-test:
+test: compile
 	./tests/test_en_ID.sh
 
 compile:
