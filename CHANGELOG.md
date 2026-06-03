@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Test suite now verifies formatted date/time/number output in CI via `LOCPATH` against `build/` (previously gated behind `USE_SYSTEM_LOCALE` and skipped in build-only CI).
 - `make test` now depends on `compile`.
+- CI matrix drops `ubuntu-26.04` (no reliable hosted runner — jobs queue until the 24h auto-cancel); tests run on `ubuntu-22.04` and `ubuntu-24.04`.
 
 ## [2.1.0] - 2026-03-09
 
