@@ -34,13 +34,14 @@ jobs:
     - name: Compile locale
       run: make compile
     
-    - name: Run tests
+    - name: Run tests (build mode)
       run: make test
-    
-    - name: Test installation (dry run)
-      run: |
-        # Test that install commands would work
-        make -n install
+
+    - name: Install locale system-wide
+      run: sudo make install
+
+    - name: Run tests (system mode)
+      run: make test
     
     - name: Upload test results
       if: always()
