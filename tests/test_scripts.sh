@@ -58,13 +58,14 @@ expect_rc() {
 # The suite must test the build it is given, even where en_ID is installed.
 check_test_harness() {
   local -- mutant=$WORK_DIR/mutant nobuild=$WORK_DIR/nobuild
-  mkdir -p -- "$mutant" "$nobuild"
-  cp -R -- Makefile localedata tests "$mutant"/
-  sed -i 's/^currency_symbol .*/currency_symbol       "XX"/' "$mutant"/localedata/en_ID
-  make -s -C "$mutant" compile >/dev/null
+  mkdir -p -- "$mutant" "$nobuild" || die 5 "Failed to create ${mutant@Q} and ${nobuild@Q}"
+  cp -R -- Makefile localedata tests "$mutant"/ || die 5 "Failed to copy the tree to ${mutant@Q}"
+  sed -i -- 's/^currency_symbol .*/currency_symbol       "XX"/' "$mutant"/localedata/en_ID \
+    || die 5 "Failed to mutate ${mutant@Q}/localedata/en_ID"
+  make -s -C "$mutant" compile >/dev/null || die 1 "Failed to compile the mutant in ${mutant@Q}"
   expect_rc 'suite fails when the source is wrong' 1 "$mutant"/tests/test_en_ID.sh LC_MONETARY
 
-  cp -R -- tests "$nobuild"/
+  cp -R -- tests "$nobuild"/ || die 5 "Failed to copy tests/ to ${nobuild@Q}"
   expect_rc 'suite reports a missing build' 3 "$nobuild"/tests/test_en_ID.sh
   expect_rc 'unknown category is an argument error' 22 tests/test_en_ID.sh LC_BOGUS
 }
@@ -72,7 +73,7 @@ check_test_harness() {
 # make must behave the same from any directory, and DESTDIR must stage.
 check_makefile() {
   local -- elsewhere=$WORK_DIR/elsewhere stage=$WORK_DIR/stage
-  mkdir -p -- "$elsewhere"
+  mkdir -p -- "$elsewhere" || die 5 "Failed to create ${elsewhere@Q}"
   expect_rc 'make compiles from another directory' 0 \
     make -s -C "$elsewhere" -f "$REPO_DIR"/Makefile compile
   expect_rc 'no stray build directory is left there' 1 test -e "$elsewhere"/build
@@ -82,9 +83,9 @@ check_makefile() {
 
 main() {
   ((EUID)) || die 1 'Run as an ordinary user: the installer checks rely on being refused root'
-  cd -- "$REPO_DIR"
-  WORK_DIR=$(mktemp -d) || die 5 'Failed to create a temporary directory'
+  cd -- "$REPO_DIR" || die 3 "Cannot enter ${REPO_DIR@Q}"
   trap 'cleanup $?' SIGINT SIGTERM EXIT
+  WORK_DIR=$(mktemp -d) || die 5 'Failed to create a temporary directory'
 
   check_test_harness
   check_makefile
