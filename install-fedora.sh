@@ -116,6 +116,8 @@ set_environment_lang() {
 }
 
 main() {
+  local -- sample
+
   [[ $REPO_URL =~ ^(https://|file:///) ]] \
     || die 22 "Invalid repository URL ${REPO_URL@Q}" \
               'EN_ID_REPO_URL must start with https:// (or file:/// for a local clone)'
@@ -131,10 +133,10 @@ main() {
 
   success 'Installation complete: en_ID is the system default locale'
   warn 'Log out and back in, or reconnect over SSH, for the new default to take effect'
-  info 'Date format sample:'
-  # A fresh process: glibc never looks again for a locale archive that was
-  # missing when this shell first looked, and on a new system this run created it
-  >&2 LC_ALL=en_ID.UTF-8 date +'%x = %A, %d %B %Y'
+  # date, not printf's %()T: glibc never looks again for a locale archive that
+  # was missing when this shell first looked, and on a new system this run created it
+  sample=$(LC_ALL=en_ID.UTF-8 date +'%x = %A, %d %B %Y') || sample='unavailable'
+  info "Date format sample: $sample"
 }
 
 main "$@"
