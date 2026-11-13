@@ -88,6 +88,23 @@ check_refusals() {
   expect_rc 'ensure-persistence needs root' 13 ./ensure-persistence.sh
 }
 
+# The documented install pipes an installer into 'sudo bash'.
+check_installers() {
+  local -- f
+  for f in install-ubuntu.sh install-fedora.sh install-arch.sh; do
+    expect_rc "$f needs root" 13 bash "$f"
+    expect_rc "$f rejects a plain-http source" 22 \
+      env EN_ID_REPO_URL=http://example.org/x.git bash "$f"
+    # shellcheck disable=SC2016 # $1 expands in the inner shell
+    expect_rc "$f names itself when piped" 0 \
+      bash -c 'bash < "$1" 2>&1 | grep -q "^$1: "' _ "$f"
+    # Half a script must run nothing, not even the root check
+    # shellcheck disable=SC2016 # $1 expands in the inner shell
+    expect_rc "$f does nothing when cut off" 1 \
+      bash -c 'head -c "$(($(stat -c %s "$1") / 2))" "$1" | bash 2>&1 | grep -q "must be run as root"' _ "$f"
+  done
+}
+
 main() {
   ((EUID)) || die 1 'Run as an ordinary user: the installer checks rely on being refused root'
   cd -- "$REPO_DIR" || die 3 "Cannot enter ${REPO_DIR@Q}"
@@ -97,6 +114,7 @@ main() {
   check_test_harness
   check_makefile
   check_refusals
+  check_installers
 
   printf 'Checks passed: %d of %d\n' "$CHECKS_PASSED" "$CHECKS_RUN"
   ((CHECKS_PASSED == CHECKS_RUN)) || exit 1
