@@ -93,6 +93,7 @@ not_listed() {
 has_line()   { [[ -f $1 ]] && grep -qxF -- "$2" "$1"; }
 lacks()      { [[ ! -f $1 ]] || ! grep -qE -- "$2" "$1"; }
 absent()     { [[ ! -e $1 && ! -L $1 ]]; }
+is_dir()     { [[ -d $1 ]]; }
 equal()      { [[ $1 == "$2" ]]; }
 
 symlink_state() {
@@ -220,7 +221,7 @@ run_installer() {
 }
 
 main() {
-  local -- sshd_sum default_link before hook file
+  local -- sshd_sum default_link before supported hook file
   local -a files
 
   [[ ${EN_ID_TEST_DISPOSABLE:-0} == 1 ]] \
@@ -301,6 +302,41 @@ main() {
   check 'en_ID is listed' listed en_ID
   run 'make uninstall succeeds' 0 make -C "$REPO" uninstall
   check 'en_ID is no longer listed' not_listed en_ID
+
+  if [[ $FAMILY == debian ]]; then
+    section 'locales-all: en_ID survives its update, which deletes the locale archive'
+    run 'install locales-all' 0 apt-get install -y -qq locales-all
+    run 'make install-persistent succeeds' 0 make -C "$REPO" install-persistent
+    run 'reinstall locales-all' 0 apt-get install -y -qq --reinstall locales-all
+    check 'en_ID survives the locales-all update' listed en_ID
+    run 'make uninstall succeeds' 0 make -C "$REPO" uninstall
+    check 'en_ID is no longer listed' not_listed en_ID
+    run 'remove locales-all' 0 apt-get remove -y -qq locales-all
+
+    section 'A symlinked /etc/locale.gen ("All locales") is not written through'
+    mv -- /etc/locale.gen "$WORK_DIR"/locale.gen || die 5 'Cannot move /etc/locale.gen aside'
+    ln -s -- /usr/share/i18n/SUPPORTED /etc/locale.gen || die 5 'Cannot link /etc/locale.gen'
+    supported=$(sums /usr/share/i18n/SUPPORTED)
+    run 'make install-persistent succeeds' 0 make -C "$REPO" install-persistent
+    check 'the packaged SUPPORTED list is unchanged' \
+      equal "$(sums /usr/share/i18n/SUPPORTED)" "$supported"
+    check 'en_ID is compiled outside the archive' is_dir /usr/lib/locale/en_ID.utf8
+    run 'make uninstall succeeds' 0 make -C "$REPO" uninstall
+    check 'en_ID is no longer listed' not_listed en_ID
+    rm -f -- /etc/locale.gen || die 5 'Cannot remove the /etc/locale.gen link'
+    mv -- "$WORK_DIR"/locale.gen /etc/locale.gen || die 5 'Cannot restore /etc/locale.gen'
+  fi
+
+  # A default changed since install, or a backup some other tool wrote, is not ours
+  section 'make uninstall leaves a default that no longer names en_ID, and its backup'
+  printf '%s\n' '# Not written by en_ID' LANG=C.UTF-8 > "$DEFAULT_FILE".backup \
+    || die 5 "Cannot write ${DEFAULT_FILE@Q}.backup"
+  before=$(sums "$DEFAULT_FILE" "$DEFAULT_FILE".backup)
+  run 'make install succeeds' 0 make -C "$REPO" install
+  run 'make uninstall succeeds' 0 make -C "$REPO" uninstall
+  check "$DEFAULT_FILE and its backup are unchanged" \
+    equal "$(sums "$DEFAULT_FILE" "$DEFAULT_FILE".backup)" "$before"
+  rm -f -- "$DEFAULT_FILE".backup || die 5 "Cannot remove ${DEFAULT_FILE@Q}.backup"
 
   printf '\nAll checks passed (%s)\n' "$FAMILY"
 }
