@@ -81,7 +81,8 @@ backup_settings() {
   fi
 }
 
-# Releases up to 2.2.1 wrote LC_ALL and twelve LC_* lines. LANG alone sets the default.
+# Releases up to 2.2.1 wrote twelve LC_* lines, and up to 2.1.0 LC_ALL as well.
+# LANG alone sets the default.
 strip_legacy_lc() {
   local -- file
   for file in "$@"; do
@@ -128,7 +129,9 @@ main() {
   success 'Installation complete: en_ID is the system default locale'
   warn 'Log out and back in, or reconnect over SSH, for the new default to take effect'
   info 'Date format sample:'
-  >&2 LC_ALL=en_ID.UTF-8 printf '%(%x = %A, %d %B %Y)T\n' -1
+  # A fresh process: glibc never looks again for a locale archive that was
+  # missing when this shell first looked, and on a new system this run created it
+  >&2 LC_ALL=en_ID.UTF-8 date +'%x = %A, %d %B %Y'
 }
 
 main "$@"
