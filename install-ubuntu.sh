@@ -6,7 +6,7 @@ shopt -s inherit_errexit
 declare -rx PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # Named literally: piped into bash, as documented, $0 is "bash"
-declare -r SCRIPT_NAME=install-ubuntu.sh VERSION=2.2.1
+declare -r SCRIPT_NAME=install-ubuntu.sh VERSION=2.3.0
 declare -r REPO_URL=${EN_ID_REPO_URL:-https://github.com/Open-Technology-Foundation/en_ID.git}
 # update-locale writes here (on newer releases, a symlink to /etc/locale.conf)
 declare -r DEFAULT_LOCALE=/etc/default/locale ENVIRONMENT=/etc/environment

@@ -5,7 +5,7 @@ All notable changes to the en_ID locale will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.3.0] - 2026-11-13
 
 ### Fixed
 - `make test` tested the installed locale whenever en_ID was installed, so on every maintainer machine it passed against a broken source. It now always tests `build/` (through `LOCPATH`); `make test-installed` tests the installed locale.
@@ -137,6 +137,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Compatible with GNU libc locale system
 - UTF-8 character encoding
 
+[2.3.0]: https://github.com/Open-Technology-Foundation/en_ID/releases/tag/v2.3.0
 [2.2.1]: https://github.com/Open-Technology-Foundation/en_ID/releases/tag/v2.2.1
 [2.2.0]: https://github.com/Open-Technology-Foundation/en_ID/releases/tag/v2.2.0
 [2.1.0]: https://github.com/Open-Technology-Foundation/en_ID/releases/tag/v2.1.0

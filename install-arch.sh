@@ -6,7 +6,7 @@ shopt -s inherit_errexit
 declare -rx PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # Named literally: piped into bash, as documented, $0 is "bash"
-declare -r SCRIPT_NAME=install-arch.sh VERSION=2.2.1
+declare -r SCRIPT_NAME=install-arch.sh VERSION=2.3.0
 declare -r REPO_URL=${EN_ID_REPO_URL:-https://github.com/Open-Technology-Foundation/en_ID.git}
 declare -r LOCALE_CONF=/etc/locale.conf ENVIRONMENT=/etc/environment
 
