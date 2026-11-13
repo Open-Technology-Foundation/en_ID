@@ -2,76 +2,82 @@ name: Test en_ID Locale
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
+
+permissions:
+  contents: read
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: ShellCheck
+        run: shellcheck -x ./*.sh tests/*.sh
+
+      - name: Locale file is UTF-8
+        run: file localedata/en_ID | grep -E '(UTF-8|ASCII)'
+
+      - name: No trailing whitespace
+        run: '! git grep -nI "[[:space:]]$" -- . ":!*.md"'
+
+      - name: No tabs in scripts or locale data
+        run: '! git grep -nP "\t" -- "*.sh" localedata/'
+
   test:
     strategy:
       matrix:
         ubuntu-version: ['22.04', '24.04']
-
     runs-on: ubuntu-${{ matrix.ubuntu-version }}
-    
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-    
-    - name: Install locale tools
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y locales locales-all build-essential
-    
-    - name: Display system info
-      run: |
-        echo "Ubuntu version: ${{ matrix.ubuntu-version }}"
-        echo "Locale version:"
-        locale --version
-        echo "Available locales:"
-        locale -a | grep -E "(en_GB|en_SG)" || true
-    
-    - name: Compile locale
-      run: make compile
-    
-    - name: Run tests (build mode)
-      run: make test
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-    - name: Install locale system-wide
-      run: sudo make install
+      - name: Install locale tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y locales
 
-    - name: Run tests (system mode)
-      run: make test
-    
-    - name: Upload test results
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-results-${{ matrix.ubuntu-version }}
-        path: |
-          build/
-          tests/*.log
-        retention-days: 7
+      - name: Test the build
+        run: make test
 
-  lint:
+      - name: Install system-wide
+        run: sudo make install
+
+      - name: Test the installed locale
+        run: make test-installed
+
+      - name: Test the build again, now that en_ID is installed
+        run: make test
+
+      - name: Uninstall
+        run: sudo make uninstall
+
+      - name: en_ID is gone
+        run: '[[ $(locale -a) != *en_ID* ]]'
+
+  install:
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+          - ubuntu:24.04
+          - debian:13
+          - fedora:latest
+          - rockylinux/rockylinux:9
+          - archlinux:latest
     runs-on: ubuntu-latest
-    
+    container: ${{ matrix.image }}
+    timeout-minutes: 20
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-    
-    - name: Check file format
-      run: |
-        # Check for UTF-8 or ASCII encoding (ASCII is valid UTF-8)
-        file localedata/en_ID | grep -E "(UTF-8|ASCII)" || (echo "Locale file must be UTF-8 encoded" && exit 1)
-        
-        # Check for trailing whitespace
-        ! grep -n "[[:space:]]$" localedata/en_ID || (echo "Found trailing whitespace" && exit 1)
-        
-        # Check for tabs vs spaces consistency
-        echo "File format checks passed"
-    
-    - name: Validate README
-      run: |
-        # Check that all commands in README are valid
-        grep -E "^\`\`\`bash" README.md -A 10 | grep -E "^[^#].*\$" || true
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install, update packages, reinstall, uninstall
+        env:
+          EN_ID_TEST_DISPOSABLE: 1
+        run: bash tests/test_install.sh
