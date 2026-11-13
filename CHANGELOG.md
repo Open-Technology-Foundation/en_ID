@@ -11,8 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `make test` tested the installed locale whenever en_ID was installed, so on every maintainer machine it passed against a broken source. It now always tests `build/` (through `LOCPATH`); `make test-installed` tests the installed locale.
 - The Ubuntu APT hook never regenerated anything (Ubuntu's `locale-gen` rejects a named custom locale), and `make install-persistent` exited 1 on its first run on Ubuntu for the same reason. Debian, Ubuntu and Arch now rely on the `/etc/locale.gen` line, which their packages rebuild from.
 - The Fedora DNF hook never fired: it used transaction states DNF rejects, and DNF5 does not read that directory. Fedora and RHEL now get en_ID compiled as a directory under `/usr/lib/locale`, outside the archive that package updates replace.
+- On Debian and Ubuntu with `locales-all`, which deletes the locale archive on every update, en_ID was lost at the next glibc update; it is now compiled as a directory there too. The same applies where `/etc/locale.gen` links to the packaged list of all locales, which is no longer written through.
 - Re-running an installer over an install made by 2.1.0 or earlier left the system-wide `LC_ALL` override in place. Installers now remove `LC_ALL` and the per-category `LC_*` lines for en_ID.
-- `make uninstall` left the system default naming a locale that no longer existed. It now runs `uninstall.sh`, which restores the backup and reverts every file the installers change.
+- `make uninstall` left the system default naming a locale that no longer existed. It now runs `uninstall.sh`, which restores the backup and reverts every file the installers change. A default that no longer names en_ID is left alone, with its backup.
 - `int_select` was `00`, described as Indonesia's international access code. Indonesia has no single prefix; it is now `001,008,007,009`, as in glibc's `id_ID`.
 - The LC_NAME comment and README claimed Mr./Ms. prefixes that were never defined.
 - `make -f /path/Makefile` from another directory failed and left a stray `build/` there; source paths are now anchored to the Makefile's directory.

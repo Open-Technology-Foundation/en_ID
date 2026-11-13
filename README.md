@@ -167,7 +167,7 @@ make test-installed
 ./tests/test_en_ID.sh LC_COLLATE
 ```
 
-`make test` always tests `build/`, even where en_ID is installed: the suite points glibc at the build through `LOCPATH`, which takes precedence over the installed locales.
+`make test` always tests the locale compiled from this tree, even where en_ID is installed: the suite points glibc at that build through `LOCPATH`, which takes precedence over the installed locales.
 
 The installers, `ensure-persistence.sh` and `uninstall.sh` change system files, so they are tested as root in disposable containers (Ubuntu, Debian, Fedora, Rocky Linux and Arch) by `tests/test_install.sh` in CI. To run it locally:
 
@@ -306,13 +306,22 @@ make info
 
 ## Uninstalling
 
+From a clone of the repository:
+
 ```bash
 sudo make uninstall
 ```
 
-This runs `uninstall.sh`, which reverts what the installers changed:
+The one-line installers keep no clone; download the uninstaller instead:
 
-- restores the default-locale file from the backup the installer made, or sets `LANG=C.UTF-8` where there is no backup
+```bash
+curl -fsSLO https://raw.githubusercontent.com/Open-Technology-Foundation/en_ID/v2.3.0/uninstall.sh
+sudo bash uninstall.sh
+```
+
+`uninstall.sh` reverts what the installers changed:
+
+- restores the default-locale file from the backup the installer made, or sets `LANG=C.UTF-8` where there is no backup. A default you have changed since the install no longer names en_ID, so it is left alone, and so is its backup
 - removes the en_ID lines from `/etc/environment` and `/etc/locale.gen`
 - deletes the compiled locale, its source, and any package-manager hook files left by releases up to 2.2.1
 
@@ -326,6 +335,7 @@ An error such as `cannot change locale (en_ID.UTF-8): No such file or directory`
 
 - **Debian, Ubuntu, Arch**: en_ID is listed in `/etc/locale.gen`. The `locales` package (Debian, Ubuntu) and the `glibc` package (Arch) rebuild every locale listed there.
 - **Fedora, RHEL**: en_ID is compiled as a directory, `/usr/lib/locale/en_ID.utf8`. Updates replace the packaged locale archive but leave the directory alone.
+- **Debian and Ubuntu with `locales-all`**, which deletes the locale archive on every update, or with `/etc/locale.gen` linked to the packaged list of all locales: en_ID is compiled as a directory as well, as on Fedora.
 
 The installers set this up. For an installation made by hand, or by a release before 2.3.0, run this from a clone:
 
