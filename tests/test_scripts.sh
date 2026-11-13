@@ -85,6 +85,7 @@ check_makefile() {
 check_refusals() {
   expect_rc 'install test refuses without the opt-in variable' 22 tests/test_install.sh
   expect_rc 'install test refuses without root' 13 env EN_ID_TEST_DISPOSABLE=1 tests/test_install.sh
+  expect_rc 'ensure-persistence needs root' 13 ./ensure-persistence.sh
 }
 
 main() {
