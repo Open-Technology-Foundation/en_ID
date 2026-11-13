@@ -69,6 +69,17 @@ check_test_harness() {
   expect_rc 'unknown category is an argument error' 22 tests/test_en_ID.sh LC_BOGUS
 }
 
+# make must behave the same from any directory, and DESTDIR must stage.
+check_makefile() {
+  local -- elsewhere=$WORK_DIR/elsewhere stage=$WORK_DIR/stage
+  mkdir -p -- "$elsewhere"
+  expect_rc 'make compiles from another directory' 0 \
+    make -s -C "$elsewhere" -f "$REPO_DIR"/Makefile compile
+  expect_rc 'no stray build directory is left there' 1 test -e "$elsewhere"/build
+  expect_rc 'staged install writes only under DESTDIR' 0 make -s DESTDIR="$stage" install
+  expect_rc 'staged install placed the source' 0 test -f "$stage"/usr/share/i18n/locales/en_ID
+}
+
 main() {
   ((EUID)) || die 1 'Run as an ordinary user: the installer checks rely on being refused root'
   cd -- "$REPO_DIR"
@@ -76,6 +87,7 @@ main() {
   trap 'cleanup $?' SIGINT SIGTERM EXIT
 
   check_test_harness
+  check_makefile
 
   printf 'Checks passed: %d of %d\n' "$CHECKS_PASSED" "$CHECKS_RUN"
   ((CHECKS_PASSED == CHECKS_RUN)) || exit 1

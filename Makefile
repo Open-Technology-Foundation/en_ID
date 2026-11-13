@@ -1,10 +1,14 @@
 # Makefile - Install en_ID locale
-# BCS1212 compliant
+# Follows BCS1212, except that 'all' compiles to build/ (it never touches the system)
 
 PREFIX    ?= /usr
 LOCALEDIR ?= $(PREFIX)/share/i18n/locales
 CHARMAP   ?= UTF-8
 DESTDIR   ?=
+
+# Directory of this Makefile (trailing slash). Anchors source paths so that
+# make behaves the same from any working directory.
+srcdir := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 .PHONY: all install install-persistent uninstall check test test-installed compile clean info help
 
@@ -12,14 +16,18 @@ all: compile
 
 install:
 	install -d $(DESTDIR)$(LOCALEDIR)
-	install -m 644 localedata/en_ID $(DESTDIR)$(LOCALEDIR)/en_ID
+	install -m 644 $(srcdir)localedata/en_ID $(DESTDIR)$(LOCALEDIR)/en_ID
 	@if [ -z "$(DESTDIR)" ]; then \
 	  localedef --charmap=$(CHARMAP) --inputfile=$(LOCALEDIR)/en_ID en_ID.$(CHARMAP); \
-	  $(MAKE) --no-print-directory check; \
+	  $(MAKE) --no-print-directory -f $(srcdir)Makefile check; \
 	fi
 
-install-persistent: install
-	@./ensure-persistence.sh
+# Regeneration after package updates reads sources from the system directory
+# only, so refuse any other LOCALEDIR before installing anything.
+install-persistent:
+	@[ '$(LOCALEDIR)' = /usr/share/i18n/locales ] || { echo 'install-persistent needs LOCALEDIR=/usr/share/i18n/locales' >&2; exit 22; }
+	@$(MAKE) --no-print-directory -f $(srcdir)Makefile install
+	@$(srcdir)ensure-persistence.sh
 
 uninstall:
 	rm -f $(DESTDIR)$(LOCALEDIR)/en_ID
@@ -37,22 +45,22 @@ check:
 	fi
 
 test: compile
-	./tests/test_en_ID.sh
-	./tests/test_scripts.sh
+	$(srcdir)tests/test_en_ID.sh
+	$(srcdir)tests/test_scripts.sh
 
 test-installed:
-	EN_ID_TEST_INSTALLED=1 ./tests/test_en_ID.sh
+	EN_ID_TEST_INSTALLED=1 $(srcdir)tests/test_en_ID.sh
 
 compile:
-	mkdir -p build
-	localedef -f $(CHARMAP) -i localedata/en_ID ./build/en_ID.$(CHARMAP)
+	mkdir -p $(srcdir)build
+	localedef -f $(CHARMAP) -i $(srcdir)localedata/en_ID $(srcdir)build/en_ID.$(CHARMAP)
 
 clean:
-	rm -rf build
+	rm -rf $(srcdir)build
 
 info:
 	@echo 'en_ID locale information:'
-	@grep -E '^(title|language|territory|revision|date)[[:space:]]' localedata/en_ID
+	@grep -E '^(title|language|territory|revision|date)[[:space:]]' $(srcdir)localedata/en_ID
 	@echo 'charmap: $(CHARMAP)'
 
 help:
