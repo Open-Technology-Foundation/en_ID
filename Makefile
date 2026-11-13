@@ -6,7 +6,7 @@ LOCALEDIR ?= $(PREFIX)/share/i18n/locales
 CHARMAP   ?= UTF-8
 DESTDIR   ?=
 
-.PHONY: all install install-persistent uninstall check test compile clean info help
+.PHONY: all install install-persistent uninstall check test test-installed compile clean info help
 
 all: compile
 
@@ -38,6 +38,10 @@ check:
 
 test: compile
 	./tests/test_en_ID.sh
+	./tests/test_scripts.sh
+
+test-installed:
+	EN_ID_TEST_INSTALLED=1 ./tests/test_en_ID.sh
 
 compile:
 	mkdir -p build
@@ -61,7 +65,8 @@ help:
 	@echo '  install-persistent   Install + persistence across system updates'
 	@echo '  uninstall            Remove locale from system'
 	@echo '  check                Verify locale is available'
-	@echo '  test                 Run test suite'
+	@echo '  test                 Test the build, then the scripts'
+	@echo '  test-installed       Test the locale installed on this system'
 	@echo '  info                 Display locale information'
 	@echo '  clean                Remove build artifacts'
 	@echo '  help                 Show this message'
