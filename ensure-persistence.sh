@@ -108,6 +108,7 @@ main() {
   case $family in
     debian | arch) list_in_locale_gen ;;
     fedora)        compile_outside_archive ;;
+    *)             die 1 "Unsupported family ${family@Q}" ;;
   esac
 
   # Repairs a locale that has already disappeared

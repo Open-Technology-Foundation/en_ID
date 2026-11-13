@@ -131,7 +131,7 @@ main() {
   success 'Installation complete: en_ID is the system default locale'
   warn 'Log out and back in, or reconnect over SSH, for the new default to take effect'
   info 'Date format sample:'
-  >&2 LC_ALL=en_ID.UTF-8 date +'%x = %A, %d %B %Y'
+  >&2 LC_ALL=en_ID.UTF-8 printf '%(%x = %A, %d %B %Y)T\n' -1
   warn 'If your initramfs carries locale settings, regenerate it: mkinitcpio -P'
 }
 

@@ -114,6 +114,8 @@ remove_compiled_locale() {
     rm -rf -- "$LOCALE_DIR" || die 5 "Failed to remove ${LOCALE_DIR@Q}"
     info "Removed $LOCALE_DIR"
   fi
+  # No archive at all is normal (directory-only installs); the final
+  # 'locale -a' check in main() catches anything left behind
   list=$(localedef --list-archive 2>/dev/null) ||:
   while IFS= read -r name; do
     [[ $name == en_ID* ]] || continue
