@@ -47,12 +47,26 @@ Thank you for your interest in contributing to the English locale for Indonesia!
 All changes must pass existing tests and include new tests where applicable:
 
 ```bash
-# Run all tests
+# Compile, test the build, then check the scripts
 make test
 
-# Test specific locale category
+# Test one locale category of the build
 ./tests/test_en_ID.sh LC_TIME
+
+# Test the locale installed on this system
+make test-installed
+
+# Lint the scripts
+shellcheck -x ./*.sh tests/*.sh
 ```
+
+The installers, `ensure-persistence.sh` and `uninstall.sh` change system files, so test them as root in a disposable container, never on your own machine:
+
+```bash
+docker run --rm -e EN_ID_TEST_DISPOSABLE=1 -v "$PWD":/src:ro debian:13 bash /src/tests/test_install.sh
+```
+
+CI runs the same test on Ubuntu, Debian, Fedora, Rocky Linux and Arch.
 
 ### Documentation
 
@@ -89,6 +103,6 @@ Include:
 
 ## Questions?
 
-Feel free to open an issue for discussion or contact the maintainers at info@yatti.id
+Feel free to open an issue for discussion or contact the maintainers at admin@yatti.id
 
 Thank you for helping improve the en_ID locale!
