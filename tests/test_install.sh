@@ -69,7 +69,7 @@ run() {
   local -- description=$1
   local -i expected=$2 actual=0
   shift 2
-  "$@" >"$LOG" 2>&1 </dev/null || actual=$?
+  "$@" &>"$LOG" </dev/null || actual=$?
   if ((actual == expected)); then
     printf 'ok   %s\n' "$description"
     return 0
@@ -79,8 +79,17 @@ run() {
   exit 1
 }
 
-listed()     { [[ $(locale -a 2>/dev/null) == *"$1"* ]]; }
-not_listed() { [[ $(locale -a 2>/dev/null) != *"$1"* ]]; }
+# A failing locale -a returns 2, so it can never read as an empty list
+listed() {
+  local -- all
+  all=$(locale -a 2>/dev/null) || return 2
+  [[ $all == *"$1"* ]]
+}
+not_listed() {
+  local -- all
+  all=$(locale -a 2>/dev/null) || return 2
+  [[ $all != *"$1"* ]]
+}
 has_line()   { [[ -f $1 ]] && grep -qxF -- "$2" "$1"; }
 lacks()      { [[ ! -f $1 ]] || ! grep -qE -- "$2" "$1"; }
 absent()     { [[ ! -e $1 && ! -L $1 ]]; }
@@ -110,8 +119,9 @@ sums() {
 # The system default must name a locale that exists, or every login warns.
 default_locale_valid() {
   local -- out
+  # locale's exit status says nothing here; its warnings are the evidence
   # shellcheck disable=SC2016 # $1 expands in the inner shell
-  out=$(env -i bash -c 'set -a; . "$1"; locale' _ "$DEFAULT_FILE" 2>&1) ||:
+  out=$(env -i bash -c 'set -a; . -- "$1"; locale' _ "$DEFAULT_FILE" 2>&1) ||:
   [[ $out != *'Cannot set'* ]]
 }
 
@@ -139,6 +149,7 @@ bootstrap() {
     debian) apt-get update -qq && apt-get install -y -qq git make locales ;;
     fedora) dnf install -y -q git make ;;
     arch)   pacman -Sy --needed --noconfirm git make ;;
+    *)      die 1 "Unsupported family ${FAMILY@Q}" ;;
   esac
 }
 
@@ -148,6 +159,7 @@ package_operation() {
     debian) apt-get install -y -qq --reinstall locales ;;
     fedora) dnf install -y -q glibc-all-langpacks && dnf reinstall -y -q glibc-all-langpacks ;;
     arch)   pacman -S --noconfirm glibc ;;
+    *)      die 1 "Unsupported family ${FAMILY@Q}" ;;
   esac
 }
 
@@ -262,6 +274,7 @@ main() {
   run 'installer succeeds again' 0 run_installer
   check 'no settings file changed' equal "$(sums "${files[@]}")" "$before"
   if [[ $FAMILY != fedora ]]; then
+    # grep -c exits 1 on a zero count; the count itself is the assertion
     check '/etc/locale.gen has one en_ID line' equal "$(grep -c -- en_ID /etc/locale.gen ||:)" 1
   fi
 

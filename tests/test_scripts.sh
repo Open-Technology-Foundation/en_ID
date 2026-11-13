@@ -55,6 +55,28 @@ expect_rc() {
   fi
 }
 
+# Predicates for expect_rc; each returns 0 when the script behaves.
+exists()  { [[ -e $1 ]]; }
+is_file() { [[ -f $1 ]]; }
+
+# Piped into bash, as documented, $0 is "bash"; the script must still name itself.
+names_itself_when_piped() {
+  local -- out
+  # The exit status is checked by other checks; only the output matters here
+  out=$(bash < "$1" 2>&1) ||:
+  grep -q -- "^$1: " <<<"$out"
+}
+
+# Half a script must run nothing, not even the root check.
+runs_nothing_when_cut_off() {
+  local -- out
+  local -i size
+  size=$(stat -c %s -- "$1") || return 2
+  # A syntax error at the cut is the expected outcome, so its status is ignored
+  out=$(head -c "$((size / 2))" -- "$1" | bash 2>&1) ||:
+  ! grep -q -- 'must be run as root' <<<"$out"
+}
+
 # The suite must test the build it is given, even where en_ID is installed.
 check_test_harness() {
   local -- mutant=$WORK_DIR/mutant nobuild=$WORK_DIR/nobuild
@@ -76,9 +98,9 @@ check_makefile() {
   mkdir -p -- "$elsewhere" || die 5 "Failed to create ${elsewhere@Q}"
   expect_rc 'make compiles from another directory' 0 \
     make -s -C "$elsewhere" -f "$REPO_DIR"/Makefile compile
-  expect_rc 'no stray build directory is left there' 1 test -e "$elsewhere"/build
+  expect_rc 'no stray build directory is left there' 1 exists "$elsewhere"/build
   expect_rc 'staged install writes only under DESTDIR' 0 make -s DESTDIR="$stage" install
-  expect_rc 'staged install placed the source' 0 test -f "$stage"/usr/share/i18n/locales/en_ID
+  expect_rc 'staged install placed the source' 0 is_file "$stage"/usr/share/i18n/locales/en_ID
 }
 
 # Scripts that change the system must refuse to run when they should not.
@@ -93,16 +115,11 @@ check_refusals() {
 check_installers() {
   local -- f
   for f in install-ubuntu.sh install-fedora.sh install-arch.sh; do
-    expect_rc "$f needs root" 13 bash "$f"
+    expect_rc "$f needs root" 13 bash -- "$f"
     expect_rc "$f rejects a plain-http source" 22 \
-      env EN_ID_REPO_URL=http://example.org/x.git bash "$f"
-    # shellcheck disable=SC2016 # $1 expands in the inner shell
-    expect_rc "$f names itself when piped" 0 \
-      bash -c 'bash < "$1" 2>&1 | grep -q "^$1: "' _ "$f"
-    # Half a script must run nothing, not even the root check
-    # shellcheck disable=SC2016 # $1 expands in the inner shell
-    expect_rc "$f does nothing when cut off" 1 \
-      bash -c 'head -c "$(($(stat -c %s "$1") / 2))" "$1" | bash 2>&1 | grep -q "must be run as root"' _ "$f"
+      env EN_ID_REPO_URL=http://example.org/x.git bash -- "$f"
+    expect_rc "$f names itself when piped" 0 names_itself_when_piped "$f"
+    expect_rc "$f does nothing when cut off" 0 runs_nothing_when_cut_off "$f"
   done
 }
 
