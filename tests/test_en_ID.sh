@@ -16,6 +16,7 @@ declare -r BUILD_DIR=${TESTS_DIR%/*}/build
 declare -ra CATEGORIES=(
   LC_MONETARY LC_NUMERIC LC_TIME LC_TIME_EXT LC_MESSAGES
   LC_PAPER LC_TELEPHONE LC_ADDRESS LC_NAME LC_MEASUREMENT
+  LC_CTYPE LC_COLLATE
 )
 
 if [[ -t 1 ]]; then
@@ -71,6 +72,10 @@ test_monetary() {
   run_test frac_digits 2 locale frac_digits
   run_test int_frac_digits 2 locale int_frac_digits
   run_test mon_grouping 3 locale mon_grouping
+  run_test p_sign_posn 1 locale p_sign_posn
+  run_test p_sep_by_space 0 locale p_sep_by_space
+  run_test n_sep_by_space 0 locale n_sep_by_space
+  run_test negative_sign - locale negative_sign
 }
 
 test_numeric() {
@@ -98,6 +103,12 @@ test_time_extended() {
   run_test am_pm 'AM;PM' locale am_pm
   run_test t_fmt_ampm '%I:%M:%S %p' locale t_fmt_ampm
   run_test 'datetime format' 'Mon 2024-01-15 14:30:45' date -d '2024-01-15 14:30:45' +%c
+  # ISO 8601 weeks: 7 days, Monday start, week 1 holds the first Thursday
+  run_test week-ndays 7 locale week-ndays
+  run_test week-1stday 19971130 locale week-1stday
+  run_test week-1stweek 4 locale week-1stweek
+  run_test date_fmt '%a %Y-%m-%d %T %Z' locale date_fmt
+  run_test '12-hour time' '02:30:45 PM' date -d '2024-01-15 14:30:45' +%r
 }
 
 test_messages() {
@@ -120,7 +131,8 @@ test_telephone() {
   # Domestic numbers carry the trunk prefix 0
   run_test tel_dom_fmt '(0%a) %l' locale tel_dom_fmt
   run_test int_prefix 62 locale int_prefix
-  run_test int_select 00 locale int_select
+  # Indonesia has no single international prefix; these are the operators' codes
+  run_test int_select '001,008,007,009' locale int_select
 }
 
 test_address() {
@@ -148,6 +160,17 @@ test_measurement() {
   run_test measurement 1 locale measurement
 }
 
+test_ctype() {
+  heading LC_CTYPE
+  run_test charmap UTF-8 locale charmap
+  run_test 'UTF-8 letter class' 1 grep -c '[[:alpha:]]' <<<'é'
+}
+
+test_collate() {
+  heading LC_COLLATE
+  run_test 'collation order' $'a\nA\nb\nB' sort <<<$'B\nb\nA\na'
+}
+
 run_category() {
   case $1 in
     LC_MONETARY)    test_monetary ;;
@@ -160,6 +183,8 @@ run_category() {
     LC_ADDRESS)     test_address ;;
     LC_NAME)        test_name ;;
     LC_MEASUREMENT) test_measurement ;;
+    LC_CTYPE)       test_ctype ;;
+    LC_COLLATE)     test_collate ;;
     *)              die 22 "Unknown category ${1@Q}" ;;
   esac
 }
