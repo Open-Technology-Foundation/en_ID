@@ -81,6 +81,12 @@ check_makefile() {
   expect_rc 'staged install placed the source' 0 test -f "$stage"/usr/share/i18n/locales/en_ID
 }
 
+# Scripts that change the system must refuse to run when they should not.
+check_refusals() {
+  expect_rc 'install test refuses without the opt-in variable' 22 tests/test_install.sh
+  expect_rc 'install test refuses without root' 13 env EN_ID_TEST_DISPOSABLE=1 tests/test_install.sh
+}
+
 main() {
   ((EUID)) || die 1 'Run as an ordinary user: the installer checks rely on being refused root'
   cd -- "$REPO_DIR" || die 3 "Cannot enter ${REPO_DIR@Q}"
@@ -89,6 +95,7 @@ main() {
 
   check_test_harness
   check_makefile
+  check_refusals
 
   printf 'Checks passed: %d of %d\n' "$CHECKS_PASSED" "$CHECKS_RUN"
   ((CHECKS_PASSED == CHECKS_RUN)) || exit 1
