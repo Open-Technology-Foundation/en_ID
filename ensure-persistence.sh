@@ -5,7 +5,8 @@
 # those packages update, so en_ID is listed there. Fedora and RHEL ship the
 # locale archive inside a package that replaces it on update, so en_ID is
 # compiled outside the archive, as a directory under /usr/lib/locale, which
-# package updates leave alone.
+# package updates leave alone. Debian and Ubuntu get the directory form too
+# where locales-all is installed or /etc/locale.gen is a symlink.
 set -euo pipefail
 shopt -s inherit_errexit
 declare -rx PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -95,6 +96,29 @@ compile_outside_archive() {
   info 'Compiled en_ID to /usr/lib/locale/en_ID.utf8'
 }
 
+# locales-all deletes the locale archive on every update, and while it is
+# installed the locales package skips locale-gen.
+locales_all_wanted() {
+  local -- want
+  # shellcheck disable=SC2016 # ${...} is a dpkg-query format, not a shell expansion
+  want=$(dpkg-query -W -f='${db:Status-Want}' locales-all 2>/dev/null) || return 1
+  [[ $want == install ]]
+}
+
+# Debian, Ubuntu. A symlinked /etc/locale.gen (debconf's "All locales") points
+# into a file the locales package replaces, so en_ID is not written there.
+# Either case needs the directory form, which package updates leave alone.
+persist_debian() {
+  if [[ -L $LOCALE_GEN ]]; then
+    info "$LOCALE_GEN links to a packaged file: en_ID is not listed there"
+  else
+    list_in_locale_gen
+  fi
+  if [[ -L $LOCALE_GEN ]] || locales_all_wanted; then
+    compile_outside_archive
+  fi
+}
+
 main() {
   local -- family
 
@@ -106,9 +130,10 @@ main() {
   info "Setting up en_ID persistence ($family family)"
   remove_old_hooks
   case $family in
-    debian | arch) list_in_locale_gen ;;
-    fedora)        compile_outside_archive ;;
-    *)             die 1 "Unsupported family ${family@Q}" ;;
+    debian) persist_debian ;;
+    arch)   list_in_locale_gen ;;
+    fedora) compile_outside_archive ;;
+    *)      die 1 "Unsupported family ${family@Q}" ;;
   esac
 
   # Repairs a locale that has already disappeared
