@@ -55,6 +55,8 @@ die()     { (($# < 2)) || error "${@:2}"; exit "${1:-0}"; }
 # The installers back up the default-locale file once, before their first
 # change. Restore it, then remove en_ID lines the backup may itself hold
 # (it was taken over an older install) or that were added without one.
+# A file that no longer names en_ID was changed after the install, and a
+# backup beside it may not be ours: both are left alone.
 # /etc/default/locale is often a symlink to /etc/locale.conf: handle the
 # file it points to once, and write through the link so it stays a link.
 revert_default_locale() {
@@ -65,6 +67,11 @@ revert_default_locale() {
     [[ $seen != *" $real "* ]] || continue
     seen+="$real "
 
+    if ! grep -qE -- "$EN_ID_LINE" "$file"; then
+      [[ ! -f $file.backup ]] \
+        || info "Left $file and $file.backup alone: $file no longer names en_ID"
+      continue
+    fi
     if [[ -f $file.backup ]]; then
       cp -- "$file".backup "$file" || die 5 "Failed to restore ${file@Q}"
       rm -f -- "$file".backup || die 5 "Failed to remove ${file@Q}.backup"
@@ -126,6 +133,8 @@ remove_compiled_locale() {
 }
 
 main() {
+  local -- all
+
   ((EUID == 0)) || die 13 'This script must be run as root or with sudo'
 
   revert_default_locale
@@ -138,7 +147,8 @@ main() {
     info "Removed $LOCALE_SRC"
   fi
 
-  [[ $(locale -a) != *en_ID* ]] || die 1 'en_ID is still listed by locale -a'
+  all=$(locale -a) || die 1 'locale -a failed, so the removal cannot be confirmed'
+  [[ $all != *en_ID* ]] || die 1 'en_ID is still listed by locale -a'
   success 'en_ID is removed and the system default reverted'
   warn 'Log out and back in for the change to take effect'
   if [[ -f $SSHD_CONFIG ]] && grep -qxF -- 'AcceptEnv LANG LC_*' "$SSHD_CONFIG"; then
