@@ -31,10 +31,7 @@ install-persistent:
 
 uninstall:
 	rm -f $(DESTDIR)$(LOCALEDIR)/en_ID
-	@if [ -z "$(DESTDIR)" ]; then \
-	  localedef --delete-from-archive en_ID.$(CHARMAP) 2>/dev/null || true; \
-	  localedef --delete-from-archive en_ID.utf8 2>/dev/null || true; \
-	fi
+	@if [ -z "$(DESTDIR)" ]; then $(srcdir)uninstall.sh; fi
 
 check:
 	@if locale -a 2>/dev/null | grep -q en_ID; then \
@@ -71,7 +68,7 @@ help:
 	@echo '  compile              Compile locale to build directory'
 	@echo '  install              Install locale system-wide'
 	@echo '  install-persistent   Install + persistence across system updates'
-	@echo '  uninstall            Remove locale from system'
+	@echo '  uninstall            Remove the locale and revert the system default'
 	@echo '  check                Verify locale is available'
 	@echo '  test                 Test the build, then the scripts'
 	@echo '  test-installed       Test the locale installed on this system'
