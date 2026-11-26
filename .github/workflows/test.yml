@@ -58,7 +58,9 @@ jobs:
         run: sudo make uninstall
 
       - name: en_ID is gone
-        run: '[[ $(locale -a) != *en_ID* ]]'
+        run: |
+          all=$(locale -a) || exit 1
+          [[ $all != *en_ID* ]]
 
   install:
     strategy:
