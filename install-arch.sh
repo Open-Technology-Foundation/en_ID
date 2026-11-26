@@ -43,11 +43,11 @@ die()     { (($# < 2)) || error "${@:2}"; exit "${1:-0}"; }
 # shellcheck disable=SC2317,SC2329 # invoked via trap
 cleanup() {
   local -i exitcode=${1:-$?}
-  trap - SIGINT SIGTERM EXIT
+  trap - EXIT
   [[ -z $TEMP_DIR ]] || rm -rf -- "$TEMP_DIR"
   exit "$exitcode"
 }
-trap 'cleanup $?' SIGINT SIGTERM EXIT
+trap 'cleanup $?' EXIT
 
 # --- Installation ---
 

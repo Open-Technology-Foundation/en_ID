@@ -190,7 +190,7 @@ run_category() {
 }
 
 main() {
-  local -- category=${1:-all}
+  local -- category=${1:-all} all
 
   [[ " ${CATEGORIES[*]} all " == *" $category "* ]] \
     || die 22 "Unknown category ${category@Q}" \
@@ -198,7 +198,8 @@ main() {
               "Categories: ${CATEGORIES[*]}"
 
   if ((TEST_INSTALLED)); then
-    [[ $(locale -a) == *en_ID* ]] || die 3 'en_ID is not installed on this system'
+    all=$(locale -a) || die 1 'locale -a failed, so installation cannot be checked'
+    [[ $all == *en_ID* ]] || die 3 'en_ID is not installed on this system'
     printf 'Testing installed locale en_ID.UTF-8\n'
   else
     [[ -d $BUILD_DIR/en_ID.UTF-8 ]] || die 3 "No build in ${BUILD_DIR@Q}; run 'make compile'"

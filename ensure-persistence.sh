@@ -120,7 +120,7 @@ persist_debian() {
 }
 
 main() {
-  local -- family
+  local -- family all
 
   ((EUID == 0)) || die 13 'This script must be run as root or with sudo'
   family=$(detect_family)
@@ -137,12 +137,14 @@ main() {
   esac
 
   # Repairs a locale that has already disappeared
-  if [[ $(locale -a) != *en_ID* ]]; then
+  all=$(locale -a) || die 1 'locale -a failed, so the locale list cannot be read'
+  if [[ $all != *en_ID* ]]; then
     localedef -i en_ID -f UTF-8 en_ID.UTF-8 || die 1 'localedef failed to compile en_ID'
     info 'Compiled en_ID into the locale archive'
   fi
 
-  [[ $(locale -a) == *en_ID* ]] || die 1 'en_ID is not available after setup'
+  all=$(locale -a) || die 1 'locale -a failed, so the setup cannot be confirmed'
+  [[ $all == *en_ID* ]] || die 1 'en_ID is not available after setup'
   success 'en_ID will be kept across glibc and locale package updates'
 }
 

@@ -32,7 +32,7 @@ die() {
 # shellcheck disable=SC2317,SC2329 # invoked via trap
 cleanup() {
   local -i exitcode=${1:-$?}
-  trap - SIGINT SIGTERM EXIT
+  trap - EXIT
   [[ -z $WORK_DIR ]] || rm -rf -- "$WORK_DIR"
   exit "$exitcode"
 }
@@ -126,7 +126,7 @@ check_installers() {
 main() {
   ((EUID)) || die 1 'Run as an ordinary user: the installer checks rely on being refused root'
   cd -- "$REPO_DIR" || die 3 "Cannot enter ${REPO_DIR@Q}"
-  trap 'cleanup $?' SIGINT SIGTERM EXIT
+  trap 'cleanup $?' EXIT
   WORK_DIR=$(mktemp -d) || die 5 'Failed to create a temporary directory'
 
   check_test_harness

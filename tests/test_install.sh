@@ -36,7 +36,7 @@ die() {
 # shellcheck disable=SC2317,SC2329 # invoked via trap
 cleanup() {
   local -i exitcode=${1:-$?}
-  trap - SIGINT SIGTERM EXIT
+  trap - EXIT
   [[ -z $WORK_DIR ]] || rm -rf -- "$WORK_DIR"
   exit "$exitcode"
 }
@@ -231,7 +231,7 @@ main() {
 
   detect_family
   [[ $FAMILY != debian ]] || export DEBIAN_FRONTEND=noninteractive
-  trap 'cleanup $?' SIGINT SIGTERM EXIT
+  trap 'cleanup $?' EXIT
   WORK_DIR=$(mktemp -d) || die 5 'Failed to create a temporary directory'
   LOG=$WORK_DIR/output.log REPO=$WORK_DIR/en_ID
   printf '%s: %s family, installer %s\n' "$SCRIPT_NAME" "$FAMILY" "$INSTALLER"
