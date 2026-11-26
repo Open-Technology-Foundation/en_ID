@@ -31,8 +31,7 @@ else
   declare -r RED='' GREEN='' YELLOW='' CYAN='' NC=''
 fi
 
-# --- Messaging ---
-
+# Message functions
 _msg() {
   local -- prefix="$SCRIPT_NAME:" msg
   case ${FUNCNAME[1]} in
@@ -50,8 +49,7 @@ success() { ((VERBOSE)) || return 0; _msg "$@"; }
 error()   { _msg "$@"; }
 die()     { (($# < 2)) || error "${@:2}"; exit "${1:-0}"; }
 
-# --- Reverting ---
-
+# Revert functions
 # The installers back up the default-locale file once, before their first
 # change. Restore it, then remove en_ID lines the backup may itself hold
 # (it was taken over an older install) or that were added without one.

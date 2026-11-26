@@ -32,8 +32,7 @@ else
   declare -r RED='' GREEN='' CYAN='' NC=''
 fi
 
-# --- Messaging ---
-
+# Message functions
 _msg() {
   local -- prefix="$SCRIPT_NAME:" msg
   case ${FUNCNAME[1]} in
@@ -49,8 +48,7 @@ success() { ((VERBOSE)) || return 0; _msg "$@"; }
 error()   { _msg "$@"; }
 die()     { (($# < 2)) || error "${@:2}"; exit "${1:-0}"; }
 
-# --- Persistence ---
-
+# Persistence functions
 # Prints debian, fedora or arch. /etc/os-release is read in a subshell so
 # that its variables (NAME, VERSION, ID...) never enter this script.
 detect_family() {

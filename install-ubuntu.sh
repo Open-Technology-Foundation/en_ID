@@ -20,8 +20,7 @@ else
   declare -r RED='' GREEN='' YELLOW='' CYAN='' NC=''
 fi
 
-# --- Messaging ---
-
+# Message functions
 _msg() {
   local -- prefix="$SCRIPT_NAME:" msg
   case ${FUNCNAME[1]} in
@@ -39,8 +38,7 @@ success() { ((VERBOSE)) || return 0; _msg "$@"; }
 error()   { _msg "$@"; }
 die()     { (($# < 2)) || error "${@:2}"; exit "${1:-0}"; }
 
-# --- Cleanup ---
-
+# Cleanup on exit
 # shellcheck disable=SC2317,SC2329 # invoked via trap
 cleanup() {
   local -i exitcode=${1:-$?}
@@ -50,8 +48,7 @@ cleanup() {
 }
 trap 'cleanup $?' EXIT
 
-# --- Installation ---
-
+# Installation functions
 install_packages() {
   info 'Installing required packages'
   # A stale or broken third-party source must not block the install

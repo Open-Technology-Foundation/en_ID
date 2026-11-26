@@ -12,7 +12,7 @@ declare -r SCRIPT_PATH
 declare -r SCRIPT_NAME=${SCRIPT_PATH##*/} TESTS_DIR=${SCRIPT_PATH%/*}
 declare -r REPO_DIR=${TESTS_DIR%/*}
 
-if [[ -t 1 ]]; then
+if [[ -t 1 && -t 2 ]]; then
   declare -r RED=$'\033[0;31m' GREEN=$'\033[0;32m' NC=$'\033[0m'
 else
   declare -r RED='' GREEN='' NC=''

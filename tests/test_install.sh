@@ -85,11 +85,13 @@ listed() {
   all=$(locale -a 2>/dev/null) || return 2
   [[ $all == *"$1"* ]]
 }
+
 not_listed() {
   local -- all
   all=$(locale -a 2>/dev/null) || return 2
   [[ $all != *"$1"* ]]
 }
+
 has_line()   { [[ -f $1 ]] && grep -qxF -- "$2" "$1"; }
 lacks()      { [[ ! -f $1 ]] || ! grep -qE -- "$2" "$1"; }
 absent()     { [[ ! -e $1 && ! -L $1 ]]; }

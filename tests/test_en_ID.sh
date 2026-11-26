@@ -19,7 +19,7 @@ declare -ra CATEGORIES=(
   LC_CTYPE LC_COLLATE
 )
 
-if [[ -t 1 ]]; then
+if [[ -t 1 && -t 2 ]]; then
   declare -r RED=$'\033[0;31m' GREEN=$'\033[0;32m' YELLOW=$'\033[1;33m' NC=$'\033[0m'
 else
   declare -r RED='' GREEN='' YELLOW='' NC=''
