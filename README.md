@@ -54,27 +54,27 @@ Install en_ID as your system default locale with one command:
 
 ### Ubuntu/Debian
 ```bash
-wget -O- https://raw.githubusercontent.com/Open-Technology-Foundation/en_ID/v2.3.0/install-ubuntu.sh | sudo bash
+wget -O- https://raw.githubusercontent.com/Open-Technology-Foundation/en_ID/v2.3.1/install-ubuntu.sh | sudo bash
 ```
 
 ### Fedora/RHEL/CentOS/Rocky/AlmaLinux
 ```bash
-wget -O- https://raw.githubusercontent.com/Open-Technology-Foundation/en_ID/v2.3.0/install-fedora.sh | sudo bash
+wget -O- https://raw.githubusercontent.com/Open-Technology-Foundation/en_ID/v2.3.1/install-fedora.sh | sudo bash
 ```
 
 ### Arch Linux
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Open-Technology-Foundation/en_ID/v2.3.0/install-arch.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/Open-Technology-Foundation/en_ID/v2.3.1/install-arch.sh | sudo bash
 ```
 
-Each installer installs the release it belongs to: the script at the `v2.3.0` URL clones tag `v2.3.0`.
+Each installer installs the release it belongs to: the script at the `v2.3.1` URL clones tag `v2.3.1`.
 
 ### Ensure Persistence (All Distributions)
 
 If en_ID is already installed and you want to make sure it survives system updates:
 
 ```bash
-wget https://raw.githubusercontent.com/Open-Technology-Foundation/en_ID/v2.3.0/ensure-persistence.sh
+wget https://raw.githubusercontent.com/Open-Technology-Foundation/en_ID/v2.3.1/ensure-persistence.sh
 sudo bash ensure-persistence.sh
 ```
 
@@ -93,7 +93,7 @@ The default is set through `LANG` alone. Releases up to 2.2.1 also wrote twelve 
 To install from a fork or mirror, set `EN_ID_REPO_URL` on the `sudo` side of the pipe, because `sudo` drops variables from the calling environment:
 
 ```bash
-wget -O- https://raw.githubusercontent.com/Open-Technology-Foundation/en_ID/v2.3.0/install-ubuntu.sh \
+wget -O- https://raw.githubusercontent.com/Open-Technology-Foundation/en_ID/v2.3.1/install-ubuntu.sh \
   | sudo EN_ID_REPO_URL=https://example.org/your/en_ID.git bash
 ```
 
@@ -104,7 +104,7 @@ The URL must start with `https://` (or `file:///` for a local clone), and the re
 You need `git`, `make` and your distribution's locale sources: `locales` on Ubuntu and Debian, `glibc-locale-source` on Fedora and RHEL (Arch's `glibc` includes them).
 
 ```bash
-git clone --branch v2.3.0 https://github.com/Open-Technology-Foundation/en_ID.git
+git clone --branch v2.3.1 https://github.com/Open-Technology-Foundation/en_ID.git
 cd en_ID
 sudo make install-persistent
 locale -a | grep en_ID
@@ -315,7 +315,7 @@ sudo make uninstall
 The one-line installers keep no clone; download the uninstaller instead:
 
 ```bash
-curl -fsSLO https://raw.githubusercontent.com/Open-Technology-Foundation/en_ID/v2.3.0/uninstall.sh
+curl -fsSLO https://raw.githubusercontent.com/Open-Technology-Foundation/en_ID/v2.3.1/uninstall.sh
 sudo bash uninstall.sh
 ```
 

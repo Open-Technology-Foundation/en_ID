@@ -5,6 +5,17 @@ All notable changes to the en_ID locale will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.1] - 2026-11-26
+
+### Fixed
+- An installer interrupted with Ctrl-C or killed with SIGTERM exited 0, so a cut-off install reported success. The installers and the test scripts now clean up from the `EXIT` trap alone and exit 130 or 143 when interrupted.
+- `ensure-persistence.sh` read a failing `locale -a` as "en_ID is missing": it recompiled the locale, then stopped with "en_ID is not available after setup". `make test-installed` reported "en_ID is not installed" in the same case. Both now stop with an error that names `locale -a`.
+- CI: the check that en_ID is gone after `make uninstall` passed when `locale -a` failed.
+
+### Changed
+- The test scripts use colour only when both stdout and stderr are terminals, as the installers do.
+- Section comments and blank lines in the scripts follow the Bash Coding Standard.
+
 ## [2.3.0] - 2026-11-13
 
 ### Fixed
@@ -138,6 +149,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Compatible with GNU libc locale system
 - UTF-8 character encoding
 
+[2.3.1]: https://github.com/Open-Technology-Foundation/en_ID/releases/tag/v2.3.1
 [2.3.0]: https://github.com/Open-Technology-Foundation/en_ID/releases/tag/v2.3.0
 [2.2.1]: https://github.com/Open-Technology-Foundation/en_ID/releases/tag/v2.2.1
 [2.2.0]: https://github.com/Open-Technology-Foundation/en_ID/releases/tag/v2.2.0
